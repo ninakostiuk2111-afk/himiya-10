@@ -3,37 +3,410 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Углеводороды в 3D — скоро</title>
+<title>Углеводороды в 3D — сравниваем формы молекул</title>
 <style>
-  :root{ --ink:#1d2330; --muted:#5b6474; --accent:#5b3df5; --bg:#f4f6fb; --card:#fff; --line:#e3e7ef }
+  :root{
+    --ink:#1d2330; --muted:#5b6474; --line:#e3e7ef; --card:#ffffff; --bg:#f4f6fb;
+    --accent:#5b3df5; --accent2:#8b5cf6; --good:#0a8f5b;
+  }
   *{box-sizing:border-box}
   body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg)}
   header{background:linear-gradient(120deg,#4c34e0,#8b5cf6);color:#fff;padding:22px 28px}
   header h1{margin:0 0 6px;font-size:26px}
   header p{margin:0;opacity:.9;font-size:15px}
-  .wrap{max-width:760px;margin:0 auto;padding:26px 20px 60px}
-  a.back{color:var(--accent);text-decoration:none;font-weight:600;font-size:14px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin-top:16px}
-  .card h2{margin:0 0 10px;font-size:19px;color:var(--accent)}
-  .card ul{margin:0;padding-left:20px;font-size:15px;line-height:1.9}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 20px 60px}
+  .topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+  .back{color:var(--accent);text-decoration:none;font-weight:600;font-size:14px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .tab{border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 18px;font-size:15px;font-weight:600;cursor:pointer;color:var(--muted)}
+  .tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  .layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr);gap:16px}
+  @media(max-width:860px){.layout{grid-template-columns:1fr}}
+  .scene-card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  #scene{width:100%;height:520px;position:relative}
+  #scene canvas{display:block}
+  .hint{position:absolute;left:12px;bottom:10px;font-size:12px;color:#8a93a5;background:rgba(255,255,255,.85);padding:4px 10px;border-radius:8px;pointer-events:none}
+  .toggles{display:flex;gap:14px;padding:10px 14px;border-top:1px solid var(--line);flex-wrap:wrap;font-size:14px}
+  .toggles label{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+  .panel h2{margin:0 0 8px;font-size:19px;color:var(--accent)}
+  .panel p{margin:8px 0;font-size:14.5px;line-height:1.55}
+  .facts{list-style:none;margin:10px 0 0;padding:0}
+  .facts li{background:#f4f1ff;border-radius:10px;padding:8px 12px;margin:6px 0;font-size:14px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--muted)}
+  .chip{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:13px;height:13px;border-radius:50%;display:inline-block}
+  table.cheat{width:100%;border-collapse:collapse;margin-top:14px;font-size:13.5px}
+  table.cheat th,table.cheat td{border:1px solid var(--line);padding:7px 9px;text-align:center}
+  table.cheat th{background:#f4f1ff}
+  table.cheat td.hl{background:#eefaf3;font-weight:600;color:var(--good)}
+  .quiz{margin-top:22px}
+  .quiz h2{font-size:20px;margin:0 0 4px}
+  .quiz .sub{color:var(--muted);font-size:14px;margin:0 0 12px}
+  .q{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:10px 0}
+  .q b{font-size:15px}
+  .reveal{margin-top:8px}
+  .reveal button{background:#eef1ff;color:var(--accent);border:none;border-radius:9px;padding:7px 14px;font-weight:600;cursor:pointer;font-size:13.5px}
+  .reveal .ans{display:none;margin-top:8px;background:#eefaf3;border-left:4px solid var(--good);padding:8px 12px;border-radius:8px;font-size:14px;line-height:1.5}
+  .q.open .reveal button{display:none}
+  .q.open .reveal .ans{display:block}
 </style>
 </head>
 <body>
 <header>
   <h1>Углеводороды в 3D</h1>
-  <p>Алканы, алкены, алкины и бензол — сравниваем формы молекул</p>
+  <p>Метан, этан, этилен, ацетилен и бензол — крути молекулы и сравнивай, где какие связи</p>
 </header>
+
 <div class="wrap">
-  <a class="back" href="../../index.html">← На главную</a>
-  <div class="card">
-    <h2>🚧 Тема в разработке</h2>
-    <ul>
-      <li>Алканы: зигзаг-цепи и свободное вращение вокруг C–C</li>
-      <li>Алкены и алкины: плоские и линейные фрагменты</li>
-      <li>Бензол: правильный шестиугольник и «бублик» π-облака</li>
-      <li>Вращаемые 3D-модели и мини-тренажёр по изомерам</li>
-    </ul>
+  <div class="topbar">
+    <a class="back" href="../../index.html">← На главную</a>
+    <div class="tabs">
+      <button class="tab active" data-mode="metan">Метан CH₄</button>
+      <button class="tab" data-mode="etan">Этан C₂H₆</button>
+      <button class="tab" data-mode="etilen">Этилен C₂H₄</button>
+      <button class="tab" data-mode="atsetilen">Ацетилен C₂H₂</button>
+      <button class="tab" data-mode="benzol">Бензол C₆H₆</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="scene-card">
+      <div id="scene"><div class="hint">Вращай мышью · колесо — приблизить</div></div>
+      <div class="toggles">
+        <label><input type="checkbox" id="tgMol" checked> Молекула (шарики и связи)</label>
+        <label><input type="checkbox" id="tgPi" checked> π-облако</label>
+        <label style="display:none"><input type="checkbox" id="tgRot" checked> Вращать −CH₃ вокруг C–C</label>
+        <label><input type="checkbox" id="tgSpin"> Автовращение</label>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2 id="pTitle">Метан CH₄ — алкан</h2>
+      <p id="pText"></p>
+      <ul class="facts" id="pFacts"></ul>
+      <div class="legend">
+        <span class="chip"><span class="dot" style="background:#3a3f47"></span> углерод</span>
+        <span class="chip"><span class="dot" style="background:#f2f2f2;border:1px solid #c9ced8"></span> водород</span>
+        <span class="chip"><span class="dot" style="background:#9aa3ad"></span> σ-связь</span>
+        <span class="chip"><span class="dot" style="background:#1e88e5;opacity:.55"></span> π-облако</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:16px">
+    <h2>Шпаргалка</h2>
+    <table class="cheat">
+      <tr><th>Молекула</th><th>Класс</th><th>Общая формула</th><th>Гибридизация C</th><th>Угол</th><th>Длина C–C, нм</th><th>Форма молекулы</th><th>π-связей</th></tr>
+      <tr><td><b>CH₄</b> метан</td><td>алкан</td><td>CₙH₂ₙ₊₂</td><td>sp³</td><td class="hl">109°28′</td><td>— (нет C–C)</td><td>тетраэдр</td><td>0</td></tr>
+      <tr><td><b>C₂H₆</b> этан</td><td>алкан</td><td>CₙH₂ₙ₊₂</td><td>sp³</td><td>≈109°</td><td class="hl">0,154</td><td>два тетраэдра, вращение свободное</td><td>0</td></tr>
+      <tr><td><b>C₂H₄</b> этилен</td><td>алкен</td><td>CₙH₂ₙ</td><td>sp²</td><td class="hl">120°</td><td class="hl">0,134</td><td>плоская</td><td>1</td></tr>
+      <tr><td><b>C₂H₂</b> ацетилен</td><td>алкин</td><td>CₙH₂ₙ₋₂</td><td>sp</td><td class="hl">180°</td><td class="hl">0,120</td><td>линейная</td><td>2</td></tr>
+      <tr><td><b>C₆H₆</b> бензол</td><td>арен</td><td>CₙH₂ₙ₋₆</td><td>sp²</td><td>120°</td><td class="hl">0,139 (все равны)</td><td>плоское кольцо + π-облако</td><td>6 e⁻ в одном облаке</td></tr>
+    </table>
+    <p style="font-size:13.5px;color:var(--muted)">Чем больше π-связей — тем короче и прочнее связь между углеродами: 0,154 → 0,134 → 0,120 нм. Бензол — «половинка»: его π-электроны размазаны по всему кольцу, поэтому все связи одинаковые. Правило осталось прежним: 4 соседа у углерода → sp³, 3 → sp², 2 → sp.</p>
+  </div>
+
+  <div class="quiz">
+    <h2>Мини-тренажёр</h2>
+    <p class="sub">Сначала ответь сам, потом нажми «Показать ответ».</p>
+    <div id="quizBox"></div>
   </div>
 </div>
+
+<script src="../../lib/three.min.js"></script>
+<script>
+const MODES = {
+  metan: {
+    title: 'Метан CH₄ — алкан',
+    text: 'Самый простой углеводород: один углерод и четыре водорода. Все четыре связи C–H — σ-связи, направленные к вершинам тетраэдра, поэтому молекула объёмная, а не плоская. Крути как хочешь — форма не меняется: тетраэдр у метана жёсткий.',
+    facts: ['Класс: <b>алкан</b>, общая формула ряда CₙH₂ₙ₊₂', 'Гибридизация углерода: <b>sp³</b>', 'Угол между связями: <b>109°28′</b>', 'π-связей: <b>0</b> — только одинарные σ', 'В природе: болотный газ, основа природного газа'],
+    camera: { r: 4.8, theta: 0.55, phi: 1.25 }
+  },
+  etan: {
+    title: 'Этан C₂H₆ — алкан',
+    text: 'Два тетраэдра углерода, соединённые σ-связью C–C. Вокруг одинарной связи половинки молекулы свободно вращаются — включи тумблер «Вращать −CH₃» и посмотри: атомы проскальзывают друг мимо друга, ничего не ломается. В длинных алканах цепочка из таких тетраэдров идёт зигзагом.',
+    facts: ['Класс: <b>алкан</b>, CₙH₂ₙ₊₂', 'Гибридизация: <b>sp³</b> у обоих углеродов', 'Длина связи C–C: <b>0,154 нм</b>', 'π-связей: 0 → вращение вокруг C–C <b>свободное</b>', 'Из этана получают этилен — сырьё для полиэтилена'],
+    camera: { r: 6.6, theta: 0.55, phi: 1.35 }
+  },
+  etilen: {
+    title: 'Этилен C₂H₄ — алкен',
+    text: 'Двойная связь C=C — это σ плюс π. π-облако висит над и под плоскостью молекулы, как две лепёшки. Повернуть половинку вокруг C=C уже нельзя: p-орбитали перестанут перекрываться и π-связь порвётся. Поэтому этилен жёстко плоский, а все шесть атомов сидят в одной плоскости.',
+    facts: ['Класс: <b>алкен</b>, общая формула CₙH₂ₙ', 'Гибридизация: <b>sp²</b>, фрагмент плоский', 'Угол: <b>120°</b>; длина C=C: <b>0,134 нм</b> — короче, чем в этане', 'π-связей: <b>1</b> → вращение вокруг C=C <b>заперто</b>', 'Выделяется зрелыми плодами и ускоряет их созревание'],
+    camera: { r: 6.4, theta: 0.6, phi: 1.2 }
+  },
+  atsetilen: {
+    title: 'Ацетилен C₂H₂ — алкин',
+    text: 'Тройная связь C≡C: одна σ и сразу две π. Два π-облака перпендикулярны друг другу и вместе образуют сплошной «чехол»-цилиндр вокруг связи. Из-за двух π связь самая короткая и прочная среди C–C, а вся молекула вытягивается в линию.',
+    facts: ['Класс: <b>алкин</b>, общая формула CₙH₂ₙ₋₂', 'Гибридизация: <b>sp</b>, угол <b>180°</b> — все атомы на одной линии', 'Длина C≡C: <b>0,120 нм</b> — рекордно короткая', 'π-связей: <b>2</b>', 'Горит в кислороде пламенем до 3150 °C — ацетиленовой сваркой режут металл'],
+    camera: { r: 8.0, theta: 1.05, phi: 1.35 }
+  },
+  benzol: {
+    title: 'Бензол C₆H₆ — арен',
+    text: 'Шесть sp²-углеродов в плоском правильном шестиугольнике. Каждая связь C–C — как бы «половинка» двойной: шесть π-электронов не принадлежат парам соседей, а «размазаны» по всему кольцу единым облаком-бубликом над и под кольцом. Поэтому все шесть связей совершенно одинаковые.',
+    facts: ['Класс: <b>арен</b>, общая формула CₙH₂ₙ₋₆', 'Гибридизация: <b>sp²</b>, кольцо плоское, угол <b>120°</b>', 'Все связи C–C равны: <b>0,139 нм</b> — между 0,154 (одинарная) и 0,134 (двойная)', 'π-электронов в облаке: <b>6</b> — ароматическая система', '«Размазывание» π-электронов по цепи или кольцу называется сопряжением'],
+    camera: { r: 8.2, theta: 0.9, phi: 0.85 }
+  }
+};
+
+const COL = { carbon: 0x3a3f47, hydrogen: 0xf2f2f2, bond: 0x9aa3ad, pi: 0x1e88e5 };
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+
+const sceneEl = document.getElementById('scene');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf7f9fc);
+
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+sceneEl.insertBefore(renderer.domElement, sceneEl.firstChild);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.75));
+const key = new THREE.DirectionalLight(0xffffff, 0.9);
+key.position.set(4, 6, 5);
+scene.add(key);
+const fill = new THREE.DirectionalLight(0xdfe7ff, 0.45);
+fill.position.set(-5, -2, -4);
+scene.add(fill);
+
+const molGroup = new THREE.Group();
+const piGroup = new THREE.Group();
+const rotGroup = new THREE.Group(); // верхняя группа −CH₃ этана: крутится вокруг C–C
+scene.add(molGroup, piGroup, rotGroup);
+
+/* --- простая орбитальная камера: вращение мышью/пальцем, зум колесом --- */
+const cam = { r: 4.8, theta: 0.55, phi: 1.25, target: V(0, 0, 0), auto: false };
+function applyCamera() {
+  cam.phi = Math.max(0.08, Math.min(Math.PI - 0.08, cam.phi));
+  cam.r = Math.max(2.5, Math.min(14, cam.r));
+  camera.position.set(
+    cam.r * Math.sin(cam.phi) * Math.sin(cam.theta),
+    cam.r * Math.cos(cam.phi),
+    cam.r * Math.sin(cam.phi) * Math.cos(cam.theta)
+  );
+  camera.lookAt(cam.target);
+}
+let drag = null;
+renderer.domElement.addEventListener('mousedown', e => drag = { x: e.clientX, y: e.clientY });
+window.addEventListener('mousemove', e => {
+  if (!drag) return;
+  cam.theta -= (e.clientX - drag.x) * 0.006;
+  cam.phi -= (e.clientY - drag.y) * 0.006;
+  drag = { x: e.clientX, y: e.clientY };
+});
+window.addEventListener('mouseup', () => drag = null);
+renderer.domElement.addEventListener('touchstart', e => { const t = e.touches[0]; drag = { x: t.clientX, y: t.clientY }; }, { passive: true });
+renderer.domElement.addEventListener('touchmove', e => {
+  if (!drag) return;
+  const t = e.touches[0];
+  cam.theta -= (t.clientX - drag.x) * 0.006;
+  cam.phi -= (t.clientY - drag.y) * 0.006;
+  drag = { x: t.clientX, y: t.clientY };
+}, { passive: true });
+renderer.domElement.addEventListener('touchend', () => drag = null);
+renderer.domElement.addEventListener('wheel', e => { cam.r *= 1 + Math.sign(e.deltaY) * 0.12; e.preventDefault(); }, { passive: false });
+
+/* --- помощники для сборки сцен --- */
+function clearGroup(g) {
+  g.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); });
+  while (g.children.length) g.remove(g.children[0]);
+}
+function atom(pos, r, color) {
+  const m = new THREE.Mesh(
+    new THREE.SphereGeometry(r, 36, 24),
+    new THREE.MeshStandardMaterial({ color, roughness: 0.35, metalness: 0.05 })
+  );
+  m.position.copy(pos);
+  return m;
+}
+function bond(a, b, r) {
+  r = r || 0.07;
+  const dir = new THREE.Vector3().subVectors(b, a);
+  const len = dir.length();
+  const m = new THREE.Mesh(
+    new THREE.CylinderGeometry(r, r, len, 16),
+    new THREE.MeshStandardMaterial({ color: COL.bond, roughness: 0.5 })
+  );
+  m.position.copy(a).addScaledVector(dir, 0.5);
+  m.quaternion.setFromUnitVectors(V(0, 1, 0), dir.clone().normalize());
+  return m;
+}
+function piCloud(pos, sx, sy, sz, opacity) {
+  const m = new THREE.Mesh(
+    new THREE.SphereGeometry(1, 36, 24),
+    new THREE.MeshStandardMaterial({ color: COL.pi, transparent: true, opacity: opacity == null ? 0.2 : opacity, roughness: 0.3, depthWrite: false })
+  );
+  m.scale.set(sx, sy, sz);
+  m.position.set(pos.x, pos.y, pos.z);
+  return m;
+}
+
+/* --- сцены пяти молекул --- */
+function buildMetan() {
+  const C = V(0, 0, 0);
+  molGroup.add(atom(C, 0.42, COL.carbon));
+  [V(1, 1, 1), V(1, -1, -1), V(-1, 1, -1), V(-1, -1, 1)].forEach(v => {
+    const d = v.normalize();
+    const H = C.clone().addScaledVector(d, 1.35);
+    molGroup.add(atom(H, 0.24, COL.hydrogen));
+    molGroup.add(bond(C, H));
+  });
+}
+function buildEtan() {
+  const C1 = V(0, -0.72, 0), C2 = V(0, 0.72, 0);
+  molGroup.add(atom(C1, 0.42, COL.carbon));
+  molGroup.add(bond(C1, C2, 0.09));
+  // нижняя метильная группа — статична
+  [60, 180, 300].forEach(a => {
+    const d = V(Math.cos(a * Math.PI / 180) * 0.9428, -1 / 3, Math.sin(a * Math.PI / 180) * 0.9428);
+    const H = C1.clone().addScaledVector(d, 1.05);
+    molGroup.add(atom(H, 0.24, COL.hydrogen));
+    molGroup.add(bond(C1, H));
+  });
+  // верхняя метильная группа — крутится вокруг оси C–C (ось Y через центр)
+  rotGroup.add(atom(C2, 0.42, COL.carbon));
+  [0, 120, 240].forEach(a => {
+    const d = V(Math.cos(a * Math.PI / 180) * 0.9428, 1 / 3, Math.sin(a * Math.PI / 180) * 0.9428);
+    const H = C2.clone().addScaledVector(d, 1.05);
+    rotGroup.add(atom(H, 0.24, COL.hydrogen));
+    rotGroup.add(bond(C2, H));
+  });
+}
+function buildEtilen() {
+  const C1 = V(-0.85, 0, 0), C2 = V(0.85, 0, 0);
+  molGroup.add(atom(C1, 0.42, COL.carbon), atom(C2, 0.42, COL.carbon));
+  molGroup.add(bond(C1, C2, 0.09)); // σ
+  molGroup.add(bond(V(-0.85, 0, 0.14), V(0.85, 0, 0.14), 0.035)); // π
+  molGroup.add(bond(V(-0.85, 0, -0.14), V(0.85, 0, -0.14), 0.035));
+  [C1, C2].forEach((C, i) => {
+    const s = i === 0 ? 1 : -1;
+    [-120, 120].forEach(a => {
+      const d = V(Math.cos(a * Math.PI / 180) * s, Math.sin(a * Math.PI / 180), 0).normalize();
+      const H = C.clone().addScaledVector(d, 1.05);
+      molGroup.add(atom(H, 0.24, COL.hydrogen));
+      molGroup.add(bond(C, H));
+    });
+  });
+  piGroup.add(piCloud(V(0, 0, 0.55), 1.05, 0.42, 0.30));
+  piGroup.add(piCloud(V(0, 0, -0.55), 1.05, 0.42, 0.30));
+}
+function buildAtsetilen() {
+  const C1 = V(-0.95, 0, 0), C2 = V(0.95, 0, 0);
+  const H1 = V(-2.0, 0, 0), H2 = V(2.0, 0, 0);
+  molGroup.add(atom(C1, 0.42, COL.carbon), atom(C2, 0.42, COL.carbon));
+  molGroup.add(atom(H1, 0.24, COL.hydrogen), atom(H2, 0.24, COL.hydrogen));
+  molGroup.add(bond(C1, C2, 0.09)); // σ
+  molGroup.add(bond(V(-0.95, 0, 0.15), V(0.95, 0, 0.15), 0.032)); // 2 π
+  molGroup.add(bond(V(-0.95, 0, -0.15), V(0.95, 0, -0.15), 0.032));
+  molGroup.add(bond(C1, H1), bond(C2, H2));
+  piGroup.add(piCloud(V(0, 0, 0.42), 0.85, 0.22, 0.18, 0.13));
+  piGroup.add(piCloud(V(0, 0, -0.42), 0.85, 0.22, 0.18, 0.13));
+  piGroup.add(piCloud(V(0, 0.42, 0), 0.85, 0.18, 0.22, 0.13));
+  piGroup.add(piCloud(V(0, -0.42, 0), 0.85, 0.18, 0.22, 0.13));
+}
+function buildBenzol() {
+  const R = 1.39; // все связи C–C одинаковые — «половинки» двойных
+  const pts = [];
+  for (let i = 0; i < 6; i++) {
+    const a = i * Math.PI / 3;
+    pts.push(V(Math.cos(a) * R, 0, Math.sin(a) * R));
+  }
+  pts.forEach(p => molGroup.add(atom(p, 0.42, COL.carbon)));
+  for (let i = 0; i < 6; i++) molGroup.add(bond(pts[i], pts[(i + 1) % 6], 0.085));
+  pts.forEach(p => {
+    const d = p.clone().normalize();
+    const H = p.clone().addScaledVector(d, 1.08);
+    molGroup.add(atom(H, 0.24, COL.hydrogen));
+    molGroup.add(bond(p, H));
+  });
+  // π-облако — два «бублика» над и под кольцом
+  [0.42, -0.42].forEach(y => {
+    const t = new THREE.Mesh(
+      new THREE.TorusGeometry(R, 0.34, 14, 60),
+      new THREE.MeshStandardMaterial({ color: COL.pi, transparent: true, opacity: 0.18, roughness: 0.3, depthWrite: false })
+    );
+    t.rotation.x = Math.PI / 2;
+    t.position.y = y;
+    piGroup.add(t);
+  });
+}
+
+let mode = 'metan';
+let methylSpin = false;
+function setMode(next) {
+  mode = next;
+  [molGroup, piGroup, rotGroup].forEach(clearGroup);
+  rotGroup.rotation.y = 0;
+  if (mode === 'metan') buildMetan();
+  if (mode === 'etan') buildEtan();
+  if (mode === 'etilen') buildEtilen();
+  if (mode === 'atsetilen') buildAtsetilen();
+  if (mode === 'benzol') buildBenzol();
+  const cfg = MODES[mode];
+  cam.r = cfg.camera.r; cam.theta = cfg.camera.theta; cam.phi = cfg.camera.phi;
+  document.getElementById('pTitle').textContent = cfg.title;
+  document.getElementById('pText').innerHTML = cfg.text;
+  document.getElementById('pFacts').innerHTML = cfg.facts.map(f => '<li>' + f + '</li>').join('');
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+  const hasPi = mode === 'etilen' || mode === 'atsetilen' || mode === 'benzol';
+  piGroup.visible = hasPi;
+  const tgPi = document.getElementById('tgPi');
+  tgPi.checked = hasPi;
+  tgPi.closest('label').style.display = hasPi ? 'flex' : 'none';
+  const isEtan = mode === 'etan';
+  methylSpin = isEtan;
+  const tgRot = document.getElementById('tgRot');
+  tgRot.checked = isEtan;
+  tgRot.closest('label').style.display = isEtan ? 'flex' : 'none';
+  rotGroup.visible = isEtan && document.getElementById('tgMol').checked;
+}
+
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => setMode(t.dataset.mode)));
+document.getElementById('tgMol').addEventListener('change', e => {
+  molGroup.visible = e.target.checked;
+  rotGroup.visible = e.target.checked;
+});
+document.getElementById('tgPi').addEventListener('change', e => piGroup.visible = e.target.checked);
+document.getElementById('tgRot').addEventListener('change', e => methylSpin = e.target.checked);
+document.getElementById('tgSpin').addEventListener('change', e => cam.auto = e.target.checked);
+
+function resize() {
+  const w = sceneEl.clientWidth, h = sceneEl.clientHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+}
+window.addEventListener('resize', resize);
+
+function animate() {
+  requestAnimationFrame(animate);
+  if (cam.auto && !drag) cam.theta += 0.004;
+  if (methylSpin && !drag) rotGroup.rotation.y += 0.02;
+  applyCamera();
+  renderer.render(scene, camera);
+}
+
+const wanted = new URLSearchParams(location.search).get('mode');
+setMode(MODES[wanted] ? wanted : 'metan');
+resize();
+animate();
+
+/* ---------- мини-тренажёр ---------- */
+const QUIZ = [
+  { q: 'Почему молекула метана — тетраэдр, а не плоский крест?', a: 'Углерод sp³-гибриден: четыре одинаковые σ-связи отталкиваются и максимально «разбегаются» — угол 109°28′, вершины тетраэдра.' },
+  { q: 'Вокруг связи C–C в этане вращение свободное, а вокруг C=C в этилене — нет. Почему?', a: 'В этане только σ-связь — она цилиндрически симметрична, при повороте ничего не ломается. В этилене над и под связью лежит π-облако: поворот сдвинул бы p-орбитали, перекрывание исчезло — π-связь разорвалась. Поэтому двойная связь «запирает» вращение.' },
+  { q: 'В какой молекуле связь C–C самая короткая? Объясни через гибридизацию.', a: 'В ацетилене C₂H₂: 0,120 нм. Тройная связь = σ + 2π — сразу шесть электронов стягивают ядра. Атомы sp-гибридны, поэтому вся молекула H–C≡C–H вытянута в линию (180°).' },
+  { q: 'Что общего у этилена и бензола и чем бензол особенный?', a: 'Оба sp²-гибридны, плоские, с π-облаком над и под плоскостью. Особенность бензола: 6 π-электронов размазаны по всему кольцу (сопряжение), поэтому все связи C–C одинаковые — по 0,139 нм, «половинки» двойных.' },
+  { q: 'Общая формула алканов — CₙH₂ₙ₊₂. Сколько атомов водорода у гексана с шестью углеродами?', a: 'C₆H₁₄: 2·6 + 2 = 14. Проверь себя так же на октане C₈H₁₈: 2·8 + 2 = 18. У этилена и бензола формулы рядов другие: CₙH₂ₙ и CₙH₂ₙ₋₆.' }
+];
+document.getElementById('quizBox').innerHTML = QUIZ.map((it, i) =>
+  '<div class="q" id="q' + i + '">' +
+    '<b>' + (i + 1) + '. ' + it.q + '</b>' +
+    '<div class="reveal">' +
+      '<button onclick="document.getElementById(\'q' + i + '\').classList.add(\'open\')">Показать ответ</button>' +
+      '<div class="ans">' + it.a + '</div>' +
+    '</div>' +
+  '</div>').join('');
+</script>
 </body>
 </html>

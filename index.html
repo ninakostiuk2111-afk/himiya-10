@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Химия 10 класс — интерактивные 3D-материалы</title>
+<style>
+  :root{
+    --ink:#1d2330; --muted:#5b6474; --line:#e3e7ef; --card:#ffffff; --bg:#f4f6fb;
+    --accent:#5b3df5;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg)}
+  header{background:linear-gradient(120deg,#4c34e0,#8b5cf6 60%,#c084fc);color:#fff;padding:46px 24px 50px;text-align:center}
+  header h1{margin:0 0 10px;font-size:32px}
+  header p{margin:0 auto;max-width:640px;opacity:.92;font-size:16px;line-height:1.5}
+  .wrap{max-width:1080px;margin:-26px auto 0;padding:0 20px 70px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;text-decoration:none;color:var(--ink);display:block;box-shadow:0 8px 24px rgba(35,25,90,.06);transition:transform .15s,box-shadow .15s}
+  a.card:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(35,25,90,.12)}
+  .card.soon{opacity:.62}
+  .tag{display:inline-block;background:#efeaff;color:var(--accent);border-radius:999px;padding:3px 12px;font-size:12.5px;font-weight:700;margin-bottom:10px}
+  .tag.soon{background:#eef1f6;color:var(--muted)}
+  .card h2{margin:0 0 8px;font-size:19px}
+  .card p{margin:0;font-size:14px;color:var(--muted);line-height:1.55}
+  .emoji{font-size:30px;display:block;margin-bottom:10px}
+  footer{text-align:center;color:var(--muted);font-size:13px;padding:0 20px 40px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🧪 Химия 10 класс</h1>
+  <p>Интерактивные 3D-уроки: вращай молекулы, включай и выключай орбитали и разбирайся в строении вещества так, чтобы понять с первого раза.</p>
+</header>
+
+<div class="wrap">
+  <div class="grid">
+    <a class="card" href="temy/gibridizaciya/">
+      <span class="emoji">⚛️</span>
+      <span class="tag">§3 · 3D-модели</span>
+      <h2>Гибридизация атомных орбиталей</h2>
+      <p>sp³ · sp² · sp в объёме: тетраэдр метана, плоский этилен с π-облаком и линейный ацетилен. Шпаргалка и мини-тренажёр внутри.</p>
+    </a>
+
+    <a class="card" href="temy/elektronnye-effekty/">
+      <span class="emoji">🧲</span>
+      <span class="tag">I/M · схемы со стрелками</span>
+      <h2>Электронные эффекты (I и M)</h2>
+      <p>Индуктивный и мезомерный эффекты: кто тянет электроны, кто отдаёт. Разбор всех 8 молекул из классного задания — клик по карточке открывает стрелки и ответ.</p>
+    </a>
+
+    <a class="card soon" href="temy/uglevodorody/">
+      <span class="emoji">⛓️</span>
+      <span class="tag soon">в разработке</span>
+      <h2>Углеводороды в 3D</h2>
+      <p>Алканы, алкены, алкины и бензол: сравниваем формы молекул и смотрим, где какие связи.</p>
+    </a>
+
+    <a class="card soon" href="temy/izomeriya/">
+      <span class="emoji">🧬</span>
+      <span class="tag soon">в разработке</span>
+      <h2>Изомерия и пространственное строение</h2>
+      <p>Почему молекулы с одинаковой формулой бывают разными: цис-/транс-изомеры и оптическая изомерия.</p>
+    </a>
+  </div>
+</div>
+
+<footer>Материалы сделаны для подготовки к урокам · открываются в браузере, интернет не нужен</footer>
+</body>
+</html>

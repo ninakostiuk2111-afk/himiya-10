@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Электронные эффекты: индуктивный (I) и мезомерный (M)</title>
+<style>
+  :root{
+    --ink:#1d2330; --muted:#5b6474; --line:#e3e7ef; --card:#ffffff; --bg:#f4f6fb;
+    --accent:#5b3df5; --good:#0a8f5b; --pull:#d9414f; --give:#1e6fd9; --zero:#0a9d58;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg)}
+  header{background:linear-gradient(120deg,#4c34e0,#8b5cf6);color:#fff;padding:22px 28px}
+  header h1{margin:0 0 6px;font-size:26px}
+  header p{margin:0;opacity:.9;font-size:15px}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 20px 60px}
+  .topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+  .back{color:var(--accent);text-decoration:none;font-weight:600;font-size:14px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .tab{border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 18px;font-size:15px;font-weight:600;cursor:pointer;color:var(--muted)}
+  .tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 22px;margin-bottom:16px}
+  .panel h2{margin:0 0 8px;font-size:19px;color:var(--accent)}
+  .panel p{margin:8px 0;font-size:14.5px;line-height:1.6}
+  .rule{background:#f4f1ff;border-left:4px solid var(--accent);border-radius:10px;padding:10px 14px;margin:12px 0;font-size:14.5px;line-height:1.6}
+  .fig{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin:14px 0}
+  .fig figure{margin:0;background:#fafbff;border:1px solid var(--line);border-radius:12px;padding:8px 10px 2px}
+  .fig figcaption{font-size:12.5px;color:var(--muted);text-align:center;padding:2px 6px 6px;max-width:280px}
+  svg text{font-family:"Segoe UI",system-ui,sans-serif}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--muted)}
+  table.cheat{width:100%;border-collapse:collapse;margin-top:12px;font-size:13.5px}
+  table.cheat th,table.cheat td{border:1px solid var(--line);padding:8px 10px;text-align:center;vertical-align:top}
+  table.cheat th{background:#f4f1ff}
+  table.cheat td.hl{background:#eefaf3;font-weight:600;color:var(--good)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:12px;margin-top:14px}
+  .mol{background:#fafbff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;cursor:pointer}
+  .mol b{font-size:13.5px}
+  .mol .q{font-size:12px;color:var(--muted);margin:2px 0 4px}
+  .mol .arw{opacity:0;transition:opacity .25s}
+  .mol.open{cursor:default;border-color:#cfc6f7}
+  .mol.open .arw{opacity:1}
+  .badges{display:none;gap:6px;flex-wrap:wrap;margin:6px 0 2px}
+  .mol.open .badges{display:flex}
+  .badge{border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;color:#fff}
+  .badge.pull{background:var(--pull)} .badge.give{background:var(--give)} .badge.zero{background:var(--zero)}
+  .expl{display:none;margin-top:6px;font-size:13px;line-height:1.55;border-top:1px dashed var(--line);padding-top:6px}
+  .mol.open .expl{display:block}
+  .quiz h2{font-size:20px;margin:0 0 4px}
+  .quiz .sub{color:var(--muted);font-size:14px;margin:0 0 12px}
+  .q-item{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:10px 0}
+  .q-item b{font-size:15px}
+  .reveal{margin-top:8px}
+  .reveal button{background:#eef1ff;color:var(--accent);border:none;border-radius:9px;padding:7px 14px;font-weight:600;cursor:pointer;font-size:13.5px}
+  .reveal .ans{display:none;margin-top:8px;background:#eefaf3;border-left:4px solid var(--good);padding:8px 12px;border-radius:8px;font-size:14px;line-height:1.5}
+  .q-item.open .reveal button{display:none}
+  .q-item.open .reveal .ans{display:block}
+  .tabpage{display:none}
+  .tabpage.active{display:block}
+</style>
+</head>
+<body>
+<header>
+  <h1>Электронные эффекты: индуктивный (I) и мезомерный (M)</h1>
+  <p>Кто тянет электроны, кто отдаёт — и как это показывать стрелками (разбор задания с 8 молекулами)</p>
+</header>
+
+<!-- общие стрелки-маркеры для всех схем -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <marker id="arrPull" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#d9414f"/>
+    </marker>
+    <marker id="arrGive" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1e6fd9"/>
+    </marker>
+    <marker id="arrZero" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#0a9d58"/>
+    </marker>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <div class="topbar">
+    <a class="back" href="../../index.html">← На главную</a>
+    <div class="tabs">
+      <button class="tab active" data-mode="i">Индуктивный эффект (I)</button>
+      <button class="tab" data-mode="m">Мезомерный эффект (M)</button>
+      <button class="tab" data-mode="mol">Разбор 8 молекул</button>
+    </div>
+  </div>
+
+  <!-- ВКЛАДКА I -->
+  <div class="tabpage active" id="page-i">
+    <div class="panel">
+      <h2>Индуктивный эффект — это «перетягивание» по σ-связям</h2>
+      <p>Атомы разные по электроотрицательности: кто сильнее тянет электроны, тот и «побеждает» в каждой связи. Заместитель тянет (или толкает) электронную плотность <b>сквозь цепочку σ-связей</b>, как гиря перетягивает канат. Сдвиг маленький, поэтому заряды обозначают греческой буквой δ («дельта»): δ+ — чуть-чуть плюс, δ− — чуть-чуть минус.</p>
+      <div class="fig">
+        <figure>
+          <svg width="300" height="122" viewBox="0 0 300 122">
+            <text x="45" y="72" text-anchor="middle" font-size="20" font-weight="600">CH₃</text>
+            <text x="130" y="72" text-anchor="middle" font-size="20" font-weight="600">CH₂</text>
+            <text x="232" y="72" text-anchor="middle" font-size="20" font-weight="600" fill="#7a5c12">Cl</text>
+            <line x1="72" y1="66" x2="106" y2="66" stroke="#9aa3ad" stroke-width="2"/>
+            <line x1="152" y1="66" x2="210" y2="66" stroke="#9aa3ad" stroke-width="2"/>
+            <line x1="150" y1="44" x2="206" y2="44" stroke="#d9414f" stroke-width="2.2" marker-end="url(#arrPull)"/>
+            <text x="178" y="36" text-anchor="middle" font-size="13" font-weight="700" fill="#d9414f">−I</text>
+            <text x="130" y="44" text-anchor="middle" font-size="13" fill="#5b6474">δ+</text>
+            <text x="248" y="52" text-anchor="middle" font-size="13" fill="#5b6474">δ−</text>
+            <text x="150" y="106" text-anchor="middle" font-size="12" fill="#8a93a5">хлор тянет электроны по σ-связям</text>
+          </svg>
+          <figcaption>CH₃–CH₂–Cl: действует −I, мезомерного эффекта нет</figcaption>
+        </figure>
+      </div>
+      <div class="rule">⚙️ Индуктивный эффект действует <b>всегда</b> — даже если сопряжения в молекуле нет вообще. Но он <b>быстро затухает</b>: заметен на 1–2 соседних атомах, а дальше почти не чувствуется.</div>
+      <table class="cheat">
+        <tr><th>Отдают электроны (+I)</th><th>Тянут электроны (−I)</th></tr>
+        <tr>
+          <td>металлы (Na, Mg, Li)<br>–CH₃, –C₂H₅ (алкилы)</td>
+          <td>галогены (F, Cl, Br)<br>–OH, –NH₂, –NO₂, –CN, –COOH</td>
+        </tr>
+      </table>
+      <p style="font-size:13.5px;color:var(--muted)">Как быстро понять: металл или «просто углеводородный хвостик» — донор (+I). Всё, что содержит электроотрицательный атом (Cl, O, N), — акцептор (−I).</p>
+    </div>
+  </div>
+
+  <!-- ВКЛАДКА M -->
+  <div class="tabpage" id="page-m">
+    <div class="panel">
+      <h2>Мезомерный эффект — это «передача по рельсам» сопряжения</h2>
+      <p>Если у заместителя есть <b>неподелённая пара</b> (у Cl, O, N) и рядом лежит <b>двойная связь или бензольное кольцо</b>, эта пара вливается в общее π-облако. Электронная плотность перераспределяется сразу по всей сопряжённой системе — не по цепочке, а «рельсами». Стрелки рисуют <b>изогнутыми</b> — от источника пары к π-системе.</p>
+      <div class="fig">
+        <figure>
+          <svg width="220" height="150" viewBox="0 0 220 150">
+            <g stroke="#9aa3ad" stroke-width="2" fill="none">
+              <path d="M110,50 L84,65 L84,95 L110,110 L136,95 L136,65 Z"/>
+              <circle cx="110" cy="80" r="18"/>
+              <line x1="110" y1="50" x2="110" y2="32"/>
+            </g>
+            <text x="110" y="26" text-anchor="middle" font-size="17" font-weight="600" fill="#7a5c12">OH</text>
+            <line x1="117" y1="48" x2="117" y2="34" stroke="#d9414f" stroke-width="2" marker-end="url(#arrPull)"/>
+            <text x="133" y="44" font-size="12" font-weight="700" fill="#d9414f">−I</text>
+            <path d="M100,28 C82,32 76,44 82,58" stroke="#1e6fd9" stroke-width="2" fill="none" marker-end="url(#arrGive)"/>
+            <text x="60" y="26" font-size="12" font-weight="700" fill="#1e6fd9">+M</text>
+            <text x="110" y="140" text-anchor="middle" font-size="12" fill="#8a93a5">пара кислорода вливается в кольцо</text>
+          </svg>
+          <figcaption>Фенол: −I слабее, +M сильнее → кольцо обогащается в орто/пара</figcaption>
+        </figure>
+        <figure>
+          <svg width="220" height="150" viewBox="0 0 220 150">
+            <text x="42" y="82" text-anchor="middle" font-size="18" font-weight="600">CH₂</text>
+            <text x="112" y="82" text-anchor="middle" font-size="18" font-weight="600">CH</text>
+            <text x="186" y="82" text-anchor="middle" font-size="18" font-weight="600" fill="#7a5c12">NO₂</text>
+            <line x1="64" y1="72" x2="90" y2="72" stroke="#9aa3ad" stroke-width="2"/>
+            <line x1="64" y1="79" x2="90" y2="79" stroke="#9aa3ad" stroke-width="2"/>
+            <line x1="132" y1="76" x2="156" y2="76" stroke="#9aa3ad" stroke-width="2"/>
+            <path d="M92,62 C120,46 148,46 172,58" stroke="#d9414f" stroke-width="2" fill="none" marker-end="url(#arrPull)"/>
+            <text x="132" y="40" text-anchor="middle" font-size="12" font-weight="700" fill="#d9414f">−M</text>
+            <line x1="130" y1="96" x2="158" y2="96" stroke="#d9414f" stroke-width="2" marker-end="url(#arrPull)"/>
+            <text x="144" y="112" text-anchor="middle" font-size="12" font-weight="700" fill="#d9414f">−I</text>
+            <text x="110" y="140" text-anchor="middle" font-size="12" fill="#8a93a5">нитрогруппа тянет и по I, и по M</text>
+          </svg>
+          <figcaption>CH₂=CH–NO₂: оба эффекта в одну сторону — тянет сильно</figcaption>
+        </figure>
+      </div>
+      <div class="rule">⚙️ Мезомерный эффект <b>включается только при сопряжении</b>: заместитель стоит рядом с двойной связью или бензольным кольцом. Нет сопряжения — нет и M, даже если неподелённая пара есть. Зато M не затухает и решает, куда пойдёт реакция.</div>
+      <table class="cheat">
+        <tr><th>Отдают в сопряжение (+M)</th><th>Тянут из сопряжения (−M)</th></tr>
+        <tr>
+          <td>галогены (F, Cl, Br)<br>–OH, –NH₂, –OR</td>
+          <td>–NO₂, C=O (карбонил)<br>–COOH, –CN</td>
+        </tr>
+      </table>
+      <p style="font-size:13.5px;color:var(--muted)">Хитрость с галогенами: у них есть и −I, и +M. У галогенбензолов −I обычно побеждает, а вот у –OH и –NH₂ сильнее +M.</p>
+    </div>
+  </div>
+
+  <!-- ВКЛАДКА РАЗБОР МОЛЕКУЛ -->
+  <div class="tabpage" id="page-mol">
+    <div class="panel">
+      <h2>Разбор 8 молекул из классного задания</h2>
+      <p style="margin-bottom:2px">Сначала посмотри на формулу и реши сама: какие эффекты действует заместитель? Потом <b>кликни по карточке</b> — стрелки и ответ проявятся.</p>
+      <div class="legend">
+        <span>🔴 красная стрелка — тянет электроны (−I / −M)</span>
+        <span>🔵 синяя — отдаёт (+I / +M)</span>
+        <span>🟢 зелёная — компенсация</span>
+      </div>
+      <div class="grid" id="molGrid"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Шпаргалка</h2>
+    <table class="cheat">
+      <tr><th>Эффект</th><th>Когда действует</th><th>Как рисуем</th><th>Доноры</th><th>Акцепторы</th></tr>
+      <tr>
+        <td><b>I</b> индуктивный</td>
+        <td class="hl">всегда</td>
+        <td>прямая стрелка вдоль σ-связи</td>
+        <td>металлы, –CH₃, –C₂H₅</td>
+        <td>галогены, –OH, –NH₂, –NO₂</td>
+      </tr>
+      <tr>
+        <td><b>M</b> мезомерный</td>
+        <td class="hl">только при сопряжении</td>
+        <td>изогнутая стрелка к π-системе</td>
+        <td>галогены, –OH, –NH₂</td>
+        <td>–NO₂, C=O, –COOH, –CN</td>
+      </tr>
+    </table>
+    <p style="font-size:13.5px;color:var(--muted)">Алгоритм разбора любой молекулы: 1) найди заместителя с электроотрицательным атомом → запиши его I; 2) проверь, есть ли рядом двойная связь или кольцо → если да, запиши и M; 3) сравни, кто сильнее, и сделай вывод: где молекула «богатая», а где «бедная».</p>
+  </div>
+
+  <div class="quiz">
+    <h2>Мини-тренажёр</h2>
+    <p class="sub">Сначала ответь сам, потом нажми «Показать ответ».</p>
+    <div id="quizBox"></div>
+  </div>
+</div>
+
+<script>
+/* ---------- вкладки + ?mode= ---------- */
+const MODE_PAGES = { i: 'page-i', m: 'page-m', mol: 'page-mol' };
+function setTab(mode) {
+  if (!MODE_PAGES[mode]) mode = 'i';
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+  document.querySelectorAll('.tabpage').forEach(p => p.classList.remove('active'));
+  document.getElementById(MODE_PAGES[mode]).classList.add('active');
+}
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => setTab(t.dataset.mode)));
+setTab(new URLSearchParams(location.search).get('mode') || 'i');
+
+/* ---------- 8 молекул ---------- */
+// линейная цепочка: атомы по центрам x=36/118/212 (три) или 60/200 (два), базовая линия текста y=78
+function chainSvg(o) {
+  const bonds = [];
+  if (o.double) {
+    bonds.push('<line x1="62" y1="67" x2="92" y2="67" stroke="#9aa3ad" stroke-width="2"/>');
+    bonds.push('<line x1="62" y1="74" x2="92" y2="74" stroke="#9aa3ad" stroke-width="2"/>');
+    bonds.push('<line x1="144" y1="71" x2="184" y2="71" stroke="#9aa3ad" stroke-width="2"/>');
+  } else if (o.atoms.length === 3) {
+    bonds.push('<line x1="62" y1="71" x2="92" y2="71" stroke="#9aa3ad" stroke-width="2"/>');
+    bonds.push('<line x1="144" y1="71" x2="184" y2="71" stroke="#9aa3ad" stroke-width="2"/>');
+  } else {
+    bonds.push('<line x1="88" y1="71" x2="168" y2="71" stroke="#9aa3ad" stroke-width="2"/>');
+  }
+  const labels = o.atoms.map(a =>
+    '<text x="' + a.x + '" y="78" text-anchor="middle" font-size="17" font-weight="600"' +
+    (a.color ? ' fill="' + a.color + '"' : '') + '>' + a.label + '</text>').join('');
+  return '<svg width="100%" height="118" viewBox="0 0 260 118">' +
+    '<g class="arw">' + (o.arrows || '') + '</g>' + bonds.join('') + labels + '</svg>';
+}
+// бензольное кольцо с заместителем сверху
+function ringSvg(sub, arrows) {
+  return '<svg width="100%" height="118" viewBox="0 0 260 118">' +
+    '<g class="arw">' + arrows + '</g>' +
+    '<g stroke="#9aa3ad" stroke-width="2" fill="none">' +
+    '<path d="M92,44 L66,59 L66,89 L92,104 L118,89 L118,59 Z"/><circle cx="92" cy="74" r="16"/>' +
+    '<line x1="92" y1="44" x2="92" y2="26"/></g>' +
+    '<text x="92" y="20" text-anchor="middle" font-size="16" font-weight="600" fill="#7a5c12">' + sub + '</text></svg>';
+}
+function pull(x1, x2, y, label, lx, ly) {
+  return '<line x1="' + x1 + '" y1="' + y + '" x2="' + x2 + '" y2="' + y + '" stroke="#d9414f" stroke-width="2.2" marker-end="url(#arrPull)"/>' +
+    (label ? '<text x="' + lx + '" y="' + (ly || y - 8) + '" text-anchor="middle" font-size="12" font-weight="700" fill="#d9414f">' + label + '</text>' : '');
+}
+function curved(kind, color, d, label, lx, ly) {
+  return '<path d="' + d + '" stroke="' + color + '" stroke-width="2" fill="none" marker-end="url(#arr' + kind + ')"/>' +
+    '<text x="' + lx + '" y="' + ly + '" text-anchor="middle" font-size="12" font-weight="700" fill="' + color + '">' + label + '</text>';
+}
+const PULL = '#d9414f', GIVE = '#1e6fd9';
+
+const MOLS = [
+  { name: '1. CH₃–CH₂–Cl', q: 'хлор у одинарной связи',
+    svg: chainSvg({ atoms: [{x:36,label:'CH₃'},{x:118,label:'CH₂'},{x:212,label:'Cl',color:'#7a5c12'}],
+      arrows: pull(146, 186, 46, '−I', 166, 38) +
+        '<text x="118" y="46" text-anchor="middle" font-size="12" fill="#5b6474">δ+</text>' +
+        '<text x="234" y="52" font-size="12" fill="#5b6474">δ−</text>' }),
+    badges: '<span class="badge pull">−I</span>',
+    expl: 'Хлор электроотрицательнее углерода: тянет σ-электроны на себя (−I). Сопряжения рядом нет — двойной связи и кольца поблизости нет, поэтому M не включается.' },
+  { name: '2. CH₃–CH₂–OH', q: 'гидроксогруппа у одинарной связи',
+    svg: chainSvg({ atoms: [{x:36,label:'CH₃'},{x:118,label:'CH₂'},{x:212,label:'OH',color:'#7a5c12'}],
+      arrows: pull(146, 186, 46, '−I', 166, 38) +
+        '<text x="118" y="46" text-anchor="middle" font-size="12" fill="#5b6474">δ+</text>' +
+        '<text x="236" y="52" font-size="12" fill="#5b6474">δ−</text>' }),
+    badges: '<span class="badge pull">−I</span>',
+    expl: 'Кислород сильно электроотрицателен → −I. Неподелённая пара у O есть, но M не работает: рядом нет сопряжения — ни двойной связи, ни кольца.' },
+  { name: '3. CH₃–NO₂', q: 'нитрогруппа — рекордсмен по оттягиванию',
+    svg: chainSvg({ atoms: [{x:60,label:'CH₃'},{x:200,label:'NO₂',color:'#7a5c12'}],
+      arrows: pull(92, 158, 42, '−I', 125, 34) + pull(92, 158, 56, '', 125) +
+        '<text x="60" y="42" text-anchor="middle" font-size="12" fill="#5b6474">δ+</text>' }),
+    badges: '<span class="badge pull">−I сильный</span>',
+    expl: 'В нитрогруппе и азот, и оба кислорода тянут электроны — эффект −I очень сильный, метильная группа заметно обедняется (δ+).' },
+  { name: '4. CH₃–CH₃', q: 'а есть ли эффект?',
+    svg: chainSvg({ atoms: [{x:60,label:'CH₃'},{x:200,label:'CH₃'}],
+      arrows: '<line x1="12" y1="46" x2="70" y2="46" stroke="#0a9d58" stroke-width="2.2" marker-end="url(#arrZero)"/>' +
+        '<text x="41" y="36" text-anchor="middle" font-size="12" font-weight="700" fill="#0a9d58">+I</text>' +
+        '<line x1="248" y1="46" x2="190" y2="46" stroke="#0a9d58" stroke-width="2.2" marker-end="url(#arrZero)"/>' +
+        '<text x="219" y="36" text-anchor="middle" font-size="12" font-weight="700" fill="#0a9d58">+I</text>' +
+        '<text x="130" y="102" text-anchor="middle" font-size="12" fill="#0a9d58">тянут поровну — компенсируется</text>' }),
+    badges: '<span class="badge zero">+I = +I</span>',
+    expl: 'Обе группы метильные, обе доноры (+I), и они «перетягивают канат» друг от друга одинаково. Итог: эффекты компенсировались, электроны распределены равномерно.' },
+  { name: '5. C₆H₅–OH (фенол)', q: 'кольцо + гидроксогруппа',
+    svg: ringSvg('OH',
+      '<line x1="99" y1="42" x2="99" y2="29" stroke="' + PULL + '" stroke-width="2" marker-end="url(#arrPull)"/>' +
+      '<text x="112" y="36" font-size="12" font-weight="700" fill="' + PULL + '">−I</text>' +
+      curved('Give', GIVE, 'M82,22 C64,26 58,40 64,54', '+M', 52, 18)),
+    badges: '<span class="badge pull">−I</span><span class="badge give">+M</span><span class="badge give">+M сильнее</span>',
+    expl: 'Кислород стоит прямо у кольца → есть сопряжение, работают оба эффекта. Но +M сильнее: неподелённая пара вливается в кольцо, и оно обогащается в орто- и пара-положениях.' },
+  { name: '6. C₆H₅–NH₂ (анилин)', q: 'кольцо + аминогруппа',
+    svg: ringSvg('NH₂',
+      '<line x1="99" y1="42" x2="99" y2="29" stroke="' + PULL + '" stroke-width="2" marker-end="url(#arrPull)"/>' +
+      '<text x="112" y="36" font-size="12" font-weight="700" fill="' + PULL + '">−I</text>' +
+      curved('Give', GIVE, 'M82,22 C64,26 58,40 64,54', '+M', 52, 18)),
+    badges: '<span class="badge pull">−I</span><span class="badge give">+M</span><span class="badge give">+M сильнее</span>',
+    expl: 'Как у фенола: азот отдаёт пару в кольцо (+M), хотя сам тянет по σ-связям (−I). Побеждает +M — поэтому реакции анилина идут именно в орто/пара-положениях.' },
+  { name: '7. CH₂=CH–NH₂', q: 'виниламин: пара азота рядом с C=C',
+    svg: chainSvg({ atoms: [{x:36,label:'CH₂'},{x:118,label:'CH'},{x:212,label:'NH₂',color:'#7a5c12'}], double: true,
+      arrows: curved('Give', GIVE, 'M184,58 C158,42 126,42 98,54', '+M', 142, 36) +
+        pull(146, 186, 92, '−I', 166, 106) }),
+    badges: '<span class="badge pull">−I</span><span class="badge give">+M</span><span class="badge give">+M доминирует</span>',
+    expl: 'Неподелённая пара азота лежит рядом с двойной связью → сопряжение есть, пара вливается в π-систему (+M). Побеждает +M: дальний конец цепи (CH₂) обогащается электронами.' },
+  { name: '8. CH₂=CH–NO₂', q: 'нитроэтилен: оба эффекта в одну сторону',
+    svg: chainSvg({ atoms: [{x:36,label:'CH₂'},{x:118,label:'CH'},{x:212,label:'NO₂',color:'#7a5c12'}], double: true,
+      arrows: curved('Pull', PULL, 'M94,56 C122,42 148,42 174,54', '−M', 134, 36) +
+        pull(146, 186, 92, '−I', 166, 106) +
+        '<text x="77" y="90" text-anchor="middle" font-size="12" fill="#5b6474">δ+</text>' }),
+    badges: '<span class="badge pull">−I</span><span class="badge pull">−M</span><span class="badge pull">усиливают друг друга</span>',
+    expl: 'Нитрогруппа и тянет σ-электроны (−I), и выкачивает плотность из сопряжения (−M). Оба эффекта в одну сторону — CH₂-конец сильно обедняется, поэтому такие молекулы легко вступают в реакции.' }
+];
+document.getElementById('molGrid').innerHTML = MOLS.map(function(m, i) {
+  return '<div class="mol" id="mol' + i + '" onclick="document.getElementById(\'mol' + i + '\').classList.add(\'open\')">' +
+    '<b>' + m.name + '</b><div class="q">' + m.q + '</div>' + m.svg +
+    '<div class="badges">' + m.badges + '</div><div class="expl">' + m.expl + '</div></div>';
+}).join('');
+
+/* ---------- мини-тренажёр ---------- */
+const QUIZ = [
+  { q: 'В CH₃–CH₂–Cl у хлора есть −I. Почему у него нет мезомерного эффекта?',
+    a: 'M работает только при сопряжении. Хлор здесь стоит у одинарной связи: его неподелённой паре некуда «вливаться» — рядом нет двойной связи или кольца.' },
+  { q: 'В феноле у группы –OH сразу два эффекта: −I и +M. Какой побеждает и что происходит с кольцом?',
+    a: 'Побеждает +M: пара кислорода вливается в π-облако кольца. Кольцо обогащается электронами в орто- и пара-положениях — поэтому фенол реагирует именно в этих местах.' },
+  { q: 'Верно ли утверждение: «нитрогруппа –NO₂ отдаёт электроны в сопряжение»?',
+    a: 'Неверно, это ловушка. –NO₂ — акцептор: она тянет плотность из сопряжения (−M) и к тому же сильно тянет по σ-связям (−I).' },
+  { q: 'В этане CH₃–CH₃ оба атома углерода — доноры (+I). Что в итоге чувствует молекула?',
+    a: 'Ничего: две одинаковые группы перетягивают «канат» в разные стороны с равной силой, эффекты компенсируются. Электроны распределены равномерно.' },
+  { q: 'В виниламине CH₂=CH–NH₂ у азота есть −I, но конец цепи «богатый». Почему?',
+    a: 'Пара азота сопряжена с двойной связью и вливается в неё (+M), а +M у азота сильнее его же −I. Электронная плотность накапливается на CH₂-конце цепи.' }
+];
+document.getElementById('quizBox').innerHTML = QUIZ.map(function(it, i) {
+  return '<div class="q-item" id="q' + i + '"><b>' + (i + 1) + '. ' + it.q + '</b>' +
+    '<div class="reveal"><button onclick="document.getElementById(\'q' + i + '\').classList.add(\'open\')">Показать ответ</button>' +
+    '<div class="ans">' + it.a + '</div></div></div>';
+}).join('');
+</script>
+</body>
+</html>

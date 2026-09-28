@@ -1,0 +1,10 @@
+# Служебные файлы ZCode (не публикуются)
+.zcode/
+.agents/
+AGENTS.md
+
+# Временные файлы проверок и системы
+tmp_*
+shot_*
+Thumbs.db
+Desktop.ini

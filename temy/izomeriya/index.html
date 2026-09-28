@@ -3,37 +3,652 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Изомерия и пространственное строение — скоро</title>
+<title>Изомерия и пространственное строение — 3D-урок</title>
 <style>
-  :root{ --ink:#1d2330; --muted:#5b6474; --accent:#5b3df5; --bg:#f4f6fb; --card:#fff; --line:#e3e7ef }
+  :root{
+    --ink:#1d2330; --muted:#5b6474; --line:#e3e7ef; --card:#ffffff; --bg:#f4f6fb;
+    --accent:#5b3df5; --accent2:#8b5cf6; --good:#0a8f5b;
+  }
   *{box-sizing:border-box}
   body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg)}
   header{background:linear-gradient(120deg,#4c34e0,#8b5cf6);color:#fff;padding:22px 28px}
   header h1{margin:0 0 6px;font-size:26px}
   header p{margin:0;opacity:.9;font-size:15px}
-  .wrap{max-width:760px;margin:0 auto;padding:26px 20px 60px}
-  a.back{color:var(--accent);text-decoration:none;font-weight:600;font-size:14px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin-top:16px}
-  .card h2{margin:0 0 10px;font-size:19px;color:var(--accent)}
-  .card ul{margin:0;padding-left:20px;font-size:15px;line-height:1.9}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 20px 60px}
+  .topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+  .back{color:var(--accent);text-decoration:none;font-weight:600;font-size:14px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .tab{border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 18px;font-size:15px;font-weight:600;cursor:pointer;color:var(--muted)}
+  .tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  .layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr);gap:16px}
+  @media(max-width:860px){.layout{grid-template-columns:1fr}}
+  .scene-card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  .subtabs{display:none;gap:8px;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid var(--line)}
+  .sub{border:1px solid var(--line);background:#fff;border-radius:10px;padding:6px 12px;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--muted)}
+  .sub.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  #scene{width:100%;height:520px;position:relative}
+  #scene canvas{display:block}
+  .hint{position:absolute;left:12px;bottom:10px;font-size:12px;color:#8a93a5;background:rgba(255,255,255,.85);padding:4px 10px;border-radius:8px;pointer-events:none}
+  .toggles{display:flex;gap:14px;padding:10px 14px;border-top:1px solid var(--line);flex-wrap:wrap;font-size:14px}
+  .toggles label{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+  .panel h2{margin:0 0 8px;font-size:19px;color:var(--accent)}
+  .panel p{margin:8px 0;font-size:14.5px;line-height:1.55}
+  .facts{list-style:none;margin:10px 0 0;padding:0}
+  .facts li{background:#f4f1ff;border-radius:10px;padding:8px 12px;margin:6px 0;font-size:14px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--muted)}
+  .chip{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:13px;height:13px;border-radius:50%;display:inline-block}
+  table.cheat{width:100%;border-collapse:collapse;margin-top:14px;font-size:13.5px}
+  table.cheat th,table.cheat td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+  table.cheat th{background:#f4f1ff}
+  table.cheat td b{color:var(--accent)}
+  .quiz{margin-top:22px}
+  .quiz h2{font-size:20px;margin:0 0 4px}
+  .quiz .sub{color:var(--muted);font-size:14px;margin:0 0 12px}
+  .q{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:10px 0}
+  .q b{font-size:15px}
+  .reveal{margin-top:8px}
+  .reveal button{background:#eef1ff;color:var(--accent);border:none;border-radius:9px;padding:7px 14px;font-weight:600;cursor:pointer;font-size:13.5px}
+  .reveal .ans{display:none;margin-top:8px;background:#eefaf3;border-left:4px solid var(--good);padding:8px 12px;border-radius:8px;font-size:14px;line-height:1.5}
+  .q.open .reveal button{display:none}
+  .q.open .reveal .ans{display:block}
 </style>
 </head>
 <body>
 <header>
   <h1>Изомерия и пространственное строение</h1>
-  <p>Почему молекулы с одинаковой формулой бывают разными</p>
+  <p>Одна формула — разные вещества: скелеты, положение связи, цис/транс и зеркальные двойники</p>
 </header>
+
 <div class="wrap">
-  <a class="back" href="../../index.html">← На главную</a>
-  <div class="card">
-    <h2>🚧 Тема в разработке</h2>
-    <ul>
-      <li>Изомерия углеродного скелета и положения кратной связи</li>
-      <li>Цис-/транс-изомерия: почему вокруг двойной связи вращать нельзя</li>
-      <li>Оптическая изомерия: «левые» и «правые» молекулы-зеркалки</li>
-      <li>3D-модели пар изомеров и мини-тренажёр</li>
-    </ul>
+  <div class="topbar">
+    <a class="back" href="../../index.html">← На главную</a>
+    <div class="tabs">
+      <button class="tab active" data-mode="skelet">Скелет цепи</button>
+      <button class="tab" data-mode="polozhenie">Положение связи</button>
+      <button class="tab" data-mode="cistrans">Цис- и транс-</button>
+      <button class="tab" data-mode="opt">Зеркальные изомеры</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="scene-card">
+      <div class="subtabs" id="sub-skelet">
+        <button class="sub active" data-sub="c4">Бутаны C₄H₁₀ · 2 изомера</button>
+        <button class="sub" data-sub="c5">Пентаны C₅H₁₂ · 3 изомера</button>
+      </div>
+      <div class="subtabs" id="sub-polozhenie">
+        <button class="sub active" data-sub="bond">Где стоит двойная связь</button>
+        <button class="sub" data-sub="class">Алкен ↔ циклоалкан</button>
+      </div>
+      <div id="scene"><div class="hint">Вращай мышью · колесо — приблизить</div></div>
+      <div class="toggles">
+        <label><input type="checkbox" id="tgPi" checked> π-облако</label>
+        <label><input type="checkbox" id="tgH" checked> Водороды</label>
+        <label><input type="checkbox" id="tgSpin"> Автовращение</label>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2 id="pTitle"></h2>
+      <p id="pText"></p>
+      <ul class="facts" id="pFacts"></ul>
+      <div class="legend">
+        <span class="chip"><span class="dot" style="background:#3a3f47"></span> углерод</span>
+        <span class="chip"><span class="dot" style="background:#f2f2f2;border:1px solid #c9ced8"></span> водород</span>
+        <span class="chip"><span class="dot" style="background:#2fae66"></span> хлор</span>
+        <span class="chip"><span class="dot" style="background:#1e88e5;opacity:.55"></span> π-облако</span>
+        <span class="chip"><span class="dot" style="background:#7c4dff;opacity:.5"></span> хиральный центр</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:16px">
+    <h2>Шпаргалка: все виды изомерии</h2>
+    <table class="cheat">
+      <tr><th>Вид изомерии</th><th>Что различается</th><th>Примеры</th></tr>
+      <tr><td><b>Скелетная</b></td><td>строение цепи: прямая или разветвлённая</td><td>бутан и 2-метилпропан (C₄H₁₀)</td></tr>
+      <tr><td><b>Положения кратной связи</b></td><td>где стоит C=C (или другая группа)</td><td>бутен-1 и бутен-2 (C₄H₈)</td></tr>
+      <tr><td><b>Межклассовая</b></td><td>вещества разных классов с одной формулой</td><td>бутен-1 и циклобутан (C₄H₈)</td></tr>
+      <tr><td><b>Цис-/транс-</b> (пространственная)</td><td>заместители по одну или по разные стороны C=C</td><td>цис- и транс-бутен-2</td></tr>
+      <tr><td><b>Оптическая</b> (пространственная)</td><td>зеркальные формы при 4 разных заместителях у C</td><td>энантиомеры 2-хлорбутана</td></tr>
+    </table>
+    <p style="font-size:13.5px;color:var(--muted)">Как не запутаться: сравни молекулярные формулы. Формулы одинаковые → это изомеры (смотри, чем различается строение). Формулы отличаются на несколько групп CH₂, а строение похожее → это гомологи (CH₄, C₂H₆, C₃H₈…). Изомеры — разные вещества с разными свойствами, даже если формула у них одна.</p>
+  </div>
+
+  <div class="quiz">
+    <h2>Мини-тренажёр</h2>
+    <p class="sub">Сначала ответь сам, потом нажми «Показать ответ».</p>
+    <div id="quizBox"></div>
   </div>
 </div>
+
+<script src="../../lib/three.min.js"></script>
+<script>
+const MODES = {
+  skelet: {
+    title: 'Изомерия углеродного скелета',
+    text: 'Изомеры — вещества с одинаковой молекулярной формулой, но разным строением. Самый простой случай — изомерия скелета: одни и те же атомы углерода можно соединить «прямой» цепочкой или цепочкой с ответвлением. Покрути модели: у бутана и изобутана атомов поровну — 4 C и 10 H, — но скелеты разные, и это два разных вещества с разными свойствами.',
+    facts: [
+      'Бутан: неразветвлённая цепь из 4 атомов C, t°<sub>кип</sub> ≈ −0,5 °C',
+      'Изобутан (2-метилпропан): та же формула C₄H₁₀, но есть ветвление, t°<sub>кип</sub> ≈ −12 °C',
+      'Чем компактнее (разветвлённее) молекула, тем ниже t°<sub>кип</sub>: пентан +36 °C, изопентан +28 °C, неопентан +9,5 °C',
+      'Чем длиннее цепь, тем больше изомеров: у C₅H₁₂ — 3, у C₇H₁₆ — 9, а у C₁₀H₂₂ — уже 75!'
+    ]
+  },
+  polozhenie: {
+    title: 'Положение кратной связи',
+    text: 'Двойную связь можно «сдвинуть» вдоль цепи: CH₂=CH–CH₂–CH₃ — это бутен-1, а CH₃–CH=CH–CH₃ — бутен-2. Формула одна (C₄H₈), а двойная связь в разных местах. Бывает и совсем другой поворот: та же формула C₄H₈ у циклобутана — замкнутого кольца вообще без двойных связей. Это межклассовая изомерия.',
+    facts: [
+      'Бутен-1 и бутен-2 — изомерия <b>положения кратной связи</b>: скелет один, C=C в разных местах',
+      'Бутен-1 и циклобутан — <b>межклассовые изомеры</b>: алкен и циклоалкан',
+      'У алкенов и циклоалканов общая формула <b>CₙH₂ₙ</b> — по одной формуле класс не определишь',
+      'Двойная связь = σ + π: включи и выключи π-облако под сценой'
+    ]
+  },
+  cistrans: {
+    title: 'Цис- и транс-изомеры',
+    text: 'Вокруг одинарной связи атомы вращаются свободно, а вокруг двойной — нельзя: сверху и снизу молекулу «пришивает» π-связь (голубые облака на моделях). Поэтому заместители у двойной связи могут «застрять» по одну сторону от неё (цис-) или по разные стороны (транс-). Состав одинаковый, связи одинаковые, а расположение в пространстве разное — это пространственная изомерия.',
+    facts: [
+      'Цис-бутен-2: CH₃-группы <b>по одну сторону</b> от C=C, t°<sub>кип</sub> ≈ +3,7 °C',
+      'Транс-бутен-2: CH₃-группы <b>по разные стороны</b>, t°<sub>кип</sub> ≈ +0,9 °C',
+      'Цис/транс существуют, только если у <b>каждого</b> атома C двойной связи — два <b>разных</b> заместителя',
+      'У бутена-1 CH₂=CH–CH₂–CH₃ цис/транс нет: у первого атома C два одинаковых заместителя — два H'
+    ]
+  },
+  opt: {
+    title: 'Оптическая (зеркальная) изомерия',
+    text: 'Если у атома углерода четыре разных заместителя, молекула становится несимметричной — хиральной. Тогда у неё появляется зеркальный двойник: все связи и углы точно такие же, но наложить двойник на оригинал невозможно — как левую перчатку не надеть на правую руку. Сравни пару 2-хлорбутана: у хирального центра (фиолетовый шар) четыре разных заместителя — H, Cl, CH₃ и C₂H₅.',
+    facts: [
+      'Хиральный центр — атом C с <b>четырьмя разными заместителями</b> (здесь: H, Cl, CH₃, C₂H₅)',
+      'Зеркальную пару называют <b>энантиомерами</b>',
+      'Энантиомеры почти неотличимы по свойствам, но вращают плоскополяризованный свет в противоположные стороны — отсюда название «оптическая»',
+      'Молочная кислота, аминокислоты и сахара существуют в «левой» и «правой» формах; в живых организмах обычно работает только одна из них'
+    ]
+  }
+};
+
+const COL = { bond: 0x9aa3ad, pi: 0x1e88e5, hyb: 0x7c4dff };
+const EL = { C: { r: 0.40, c: 0x3a3f47 }, H: { r: 0.22, c: 0xf2f2f2 }, Cl: { r: 0.46, c: 0x2fae66 } };
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+const CC = 1.5, CH = 1.05, CD = 1.32, CCL = 1.78;
+const TET = 109.47 * Math.PI / 180;
+const N = V(0, 0, 1); // плоскость всех молекул — xy
+
+const sceneEl = document.getElementById('scene');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf7f9fc);
+
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+sceneEl.insertBefore(renderer.domElement, sceneEl.firstChild);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.75));
+const key = new THREE.DirectionalLight(0xffffff, 0.9);
+key.position.set(4, 6, 5);
+scene.add(key);
+const fill = new THREE.DirectionalLight(0xdfe7ff, 0.45);
+fill.position.set(-5, -2, -4);
+scene.add(fill);
+
+const molGroup = new THREE.Group();   // тяжёлые атомы и связи
+const hydGroup = new THREE.Group();   // водороды и их связи
+const piGroup = new THREE.Group();    // π-облака двойных связей
+const labelGroup = new THREE.Group(); // подписи молекул
+const extraGroup = new THREE.Group(); // зеркало, подсветка хирального центра
+scene.add(molGroup, hydGroup, piGroup, labelGroup, extraGroup);
+
+/* --- простая орбитальная камера: вращение мышью/пальцем, зум колесом --- */
+const cam = { r: 8.6, theta: 0.55, phi: 1.15, target: V(0, 0, 0), auto: false };
+function applyCamera() {
+  cam.phi = Math.max(0.08, Math.min(Math.PI - 0.08, cam.phi));
+  cam.r = Math.max(2.5, Math.min(15, cam.r));
+  camera.position.set(
+    cam.r * Math.sin(cam.phi) * Math.sin(cam.theta),
+    cam.r * Math.cos(cam.phi),
+    cam.r * Math.sin(cam.phi) * Math.cos(cam.theta)
+  );
+  camera.lookAt(cam.target);
+}
+let drag = null;
+renderer.domElement.addEventListener('mousedown', e => drag = { x: e.clientX, y: e.clientY });
+window.addEventListener('mousemove', e => {
+  if (!drag) return;
+  cam.theta -= (e.clientX - drag.x) * 0.006;
+  cam.phi -= (e.clientY - drag.y) * 0.006;
+  drag = { x: e.clientX, y: e.clientY };
+});
+window.addEventListener('mouseup', () => drag = null);
+renderer.domElement.addEventListener('touchstart', e => { const t = e.touches[0]; drag = { x: t.clientX, y: t.clientY }; }, { passive: true });
+renderer.domElement.addEventListener('touchmove', e => {
+  if (!drag) return;
+  const t = e.touches[0];
+  cam.theta -= (t.clientX - drag.x) * 0.006;
+  cam.phi -= (t.clientY - drag.y) * 0.006;
+  drag = { x: t.clientX, y: t.clientY };
+}, { passive: true });
+renderer.domElement.addEventListener('touchend', () => drag = null);
+renderer.domElement.addEventListener('wheel', e => { cam.r *= 1 + Math.sign(e.deltaY) * 0.12; e.preventDefault(); }, { passive: false });
+
+/* --- базовые помощники рисования --- */
+function clearGroup(g) {
+  g.traverse(o => {
+    if (o.isSprite) return; // у спрайтов общая геометрия, её dispose нельзя
+    if (o.geometry) o.geometry.dispose();
+    if (o.material) { if (o.material.map) o.material.map.dispose(); o.material.dispose(); }
+  });
+  while (g.children.length) g.remove(g.children[0]);
+}
+function atom(pos, r, color) {
+  const m = new THREE.Mesh(
+    new THREE.SphereGeometry(r, 36, 24),
+    new THREE.MeshStandardMaterial({ color, roughness: 0.35, metalness: 0.05 })
+  );
+  m.position.copy(pos);
+  return m;
+}
+function bond(a, b, r) {
+  r = r || 0.07;
+  const dir = new THREE.Vector3().subVectors(b, a);
+  const len = dir.length();
+  const m = new THREE.Mesh(
+    new THREE.CylinderGeometry(r, r, len, 16),
+    new THREE.MeshStandardMaterial({ color: COL.bond, roughness: 0.5 })
+  );
+  m.position.copy(a).addScaledVector(dir, 0.5);
+  m.quaternion.setFromUnitVectors(V(0, 1, 0), dir.clone().normalize());
+  return m;
+}
+function doubleBondVis(a, b, g) {
+  g.add(bond(a, b, 0.09));
+  const u = b.clone().sub(a).normalize();
+  const p = new THREE.Vector3().crossVectors(N, u).normalize();
+  [0.13, -0.13].forEach(s => {
+    g.add(bond(a.clone().addScaledVector(p, s), b.clone().addScaledVector(p, s), 0.032));
+  });
+}
+function piCloud(pos, sx, sy, sz, opacity) {
+  const m = new THREE.Mesh(
+    new THREE.SphereGeometry(1, 36, 24),
+    new THREE.MeshStandardMaterial({ color: COL.pi, transparent: true, opacity: opacity == null ? 0.2 : opacity, roughness: 0.3, depthWrite: false })
+  );
+  m.scale.set(sx, sy, sz);
+  m.position.set(pos.x, pos.y, pos.z);
+  return m;
+}
+function addPi(a, b) {
+  const mid = a.clone().add(b).multiplyScalar(0.5);
+  const len = b.distanceTo(a);
+  [0.5, -0.5].forEach(s => {
+    piGroup.add(piCloud(mid.clone().add(V(0, 0, s)), len * 0.72, 0.52, 0.24, 0.18));
+  });
+}
+function label(text, pos, h) {
+  h = h || 0.5;
+  const c = document.createElement('canvas');
+  let x = c.getContext('2d');
+  const font = '600 44px "Segoe UI", Arial, sans-serif';
+  x.font = font;
+  const tw = Math.ceil(x.measureText(text).width);
+  const w = tw + 56, hh = 84;
+  c.width = w; c.height = hh;
+  x = c.getContext('2d');
+  x.font = font;
+  // белая подложка-пилюля, чтобы подпись читалась даже поверх атомов
+  x.fillStyle = 'rgba(255,255,255,.95)';
+  if (x.roundRect) { x.beginPath(); x.roundRect(2, 2, w - 4, hh - 4, 20); x.fill(); x.strokeStyle = '#e3e7ef'; x.lineWidth = 2; x.stroke(); }
+  else x.fillRect(2, 2, w - 4, hh - 4);
+  x.fillStyle = '#3a3f47';
+  x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.fillText(text, w / 2, hh / 2 + 2);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), transparent: true }));
+  sp.scale.set(h * w / hh, h, 1);
+  sp.position.copy(pos);
+  return sp;
+}
+function glow(pos, r, color, op) {
+  const m = new THREE.Mesh(
+    new THREE.SphereGeometry(r, 32, 20),
+    new THREE.MeshStandardMaterial({ color: color, transparent: true, opacity: op == null ? 0.3 : op, roughness: 0.3, depthWrite: false })
+  );
+  m.position.copy(pos);
+  return m;
+}
+
+/* --- геометрия молекул --- */
+function newMol() { return { pos: [], el: [], hyb: [], bonds: [] }; }
+function addAtom(m, el, pos) { m.pos.push(pos); m.el.push(el); m.hyb.push(undefined); return m.pos.length - 1; }
+function addBond(m, i, j, order) { m.bonds.push([i, j, order || 1]); }
+function neighbors(m, i) {
+  return m.bonds.filter(b => b[0] === i || b[1] === i).map(b => b[0] === i ? b[1] : b[0]);
+}
+// три направления под 109,47° к u (тетраэдр); одно лежит в плоскости молекулы
+function tetraDirs(u) {
+  const v = new THREE.Vector3().crossVectors(u, N).normalize();
+  const w = new THREE.Vector3().crossVectors(v, u).normalize();
+  return [0, 120, 240].map(deg => {
+    const f = deg * Math.PI / 180;
+    return u.clone().multiplyScalar(Math.cos(TET))
+      .addScaledVector(v, Math.sin(TET) * Math.cos(f))
+      .addScaledVector(w, Math.sin(TET) * Math.sin(f)).normalize();
+  });
+}
+// два направления под 120° к u, оба в плоскости молекулы
+function triDirs(u) {
+  const v = new THREE.Vector3().crossVectors(u, N).normalize();
+  return [1, -1].map(s => u.clone().multiplyScalar(-0.5).addScaledVector(v, 0.866 * s).normalize());
+}
+// свободные направления атома C (куда встанут H или ветвь)
+function freeDirs(m, i) {
+  const dirs = neighbors(m, i).map(j => m.pos[j].clone().sub(m.pos[i]).normalize());
+  if (m.hyb[i] === 'sp2') {
+    if (dirs.length === 1) return triDirs(dirs[0]);
+    return [dirs[0].clone().add(dirs[1]).negate().normalize()];
+  }
+  if (dirs.length === 1) return tetraDirs(dirs[0]);
+  if (dirs.length === 2) {
+    const m1 = dirs[0].clone().add(dirs[1]).negate().normalize();
+    const t = new THREE.Vector3().crossVectors(dirs[0], dirs[1]).normalize();
+    const b = 54.74 * Math.PI / 180;
+    return [m1.clone().multiplyScalar(Math.cos(b)).addScaledVector(t, Math.sin(b)).normalize(),
+            m1.clone().multiplyScalar(Math.cos(b)).addScaledVector(t, -Math.sin(b)).normalize()];
+  }
+  if (dirs.length === 3) return [dirs[0].clone().add(dirs[1]).add(dirs[2]).negate().normalize()];
+  return [];
+}
+function addHydrogens(m) {
+  for (let i = 0; i < m.pos.length; i++) {
+    if (m.el[i] !== 'C') continue;
+    freeDirs(m, i).forEach(d => {
+      const h = addAtom(m, 'H', m.pos[i].clone().addScaledVector(d, CH));
+      addBond(m, i, h);
+    });
+  }
+}
+// строит зигзаг-цепь атомов C (углы 109,47°, цепь в плоскости xy)
+function growChain(m, i0, dir, count) {
+  const axis = dir.clone().normalize();
+  let prev = i0, d = axis.clone(), idx = i0;
+  for (let k = 0; k < count; k++) {
+    idx = addAtom(m, 'C', m.pos[prev].clone().addScaledVector(d, CC));
+    addBond(m, prev, idx);
+    if (k < count - 1) {
+      const back = d.clone().negate();
+      const v = new THREE.Vector3().crossVectors(back, N).normalize();
+      const cand = [back.clone().multiplyScalar(Math.cos(TET)).addScaledVector(v, Math.sin(TET)).normalize(),
+                    back.clone().multiplyScalar(Math.cos(TET)).addScaledVector(v, -Math.sin(TET)).normalize()];
+      d = cand[0].dot(axis) >= cand[1].dot(axis) ? cand[0] : cand[1];
+    }
+    prev = idx;
+  }
+  return idx;
+}
+
+/* --- конкретные молекулы --- */
+function molButane() {
+  const m = newMol();
+  addAtom(m, 'C', V(0, 0, 0));
+  growChain(m, 0, V(1, 0, 0), 3);
+  addHydrogens(m);
+  return m;
+}
+function molPentane() {
+  const m = newMol();
+  addAtom(m, 'C', V(0, 0, 0));
+  growChain(m, 0, V(1, 0, 0), 4);
+  addHydrogens(m);
+  return m;
+}
+function molIsobutane() {
+  const m = newMol();
+  const c = addAtom(m, 'C', V(0, 0, 0));
+  const dirs = [V(1, 0, 0)].concat(tetraDirs(V(1, 0, 0)));
+  dirs.slice(0, 3).forEach(d => {
+    const i = addAtom(m, 'C', m.pos[c].clone().addScaledVector(d, CC));
+    addBond(m, c, i);
+  });
+  addHydrogens(m);
+  return m;
+}
+function molIsopentane() {
+  const m = newMol();
+  addAtom(m, 'C', V(0, 0, 0));
+  growChain(m, 0, V(1, 0, 0), 3);
+  const bd = freeDirs(m, 1)[0];
+  const br = addAtom(m, 'C', m.pos[1].clone().addScaledVector(bd, CC));
+  addBond(m, 1, br);
+  addHydrogens(m);
+  return m;
+}
+function molNeopentane() {
+  const m = newMol();
+  const c = addAtom(m, 'C', V(0, 0, 0));
+  const dirs = [V(1, 0, 0)].concat(tetraDirs(V(1, 0, 0)));
+  dirs.forEach(d => {
+    const i = addAtom(m, 'C', m.pos[c].clone().addScaledVector(d, CC));
+    addBond(m, c, i);
+  });
+  addHydrogens(m);
+  return m;
+}
+function molButene1() {
+  const m = newMol();
+  const c1 = addAtom(m, 'C', V(0, 0, 0)); m.hyb[c1] = 'sp2';
+  const c2 = addAtom(m, 'C', V(CD, 0, 0)); m.hyb[c2] = 'sp2';
+  addBond(m, c1, c2, 2);
+  growChain(m, c2, V(0.5, 0.866, 0), 2);
+  addHydrogens(m);
+  return m;
+}
+function molButene2(cis) {
+  const m = newMol();
+  const c2 = addAtom(m, 'C', V(0, 0, 0)); m.hyb[c2] = 'sp2';
+  const c3 = addAtom(m, 'C', V(CD, 0, 0)); m.hyb[c3] = 'sp2';
+  addBond(m, c2, c3, 2);
+  growChain(m, c2, V(-0.5, 0.866, 0), 1);
+  growChain(m, c3, V(0.5, cis ? 0.866 : -0.866, 0), 1);
+  addHydrogens(m);
+  return m;
+}
+function molCyclobutane() {
+  const m = newMol();
+  const q = 0.82, pz = 0.2;
+  [[-q, q, pz], [q, q, -pz], [q, -q, pz], [-q, -q, -pz]].forEach(p => addAtom(m, 'C', V(p[0], p[1], p[2])));
+  addBond(m, 0, 1); addBond(m, 1, 2); addBond(m, 2, 3); addBond(m, 3, 0);
+  addHydrogens(m);
+  return m;
+}
+function molChlorobutane() {
+  const m = newMol();
+  addAtom(m, 'C', V(0, 0, 0));
+  growChain(m, 0, V(1, 0, 0), 3);
+  const bd = freeDirs(m, 1)[0];
+  const cl = addAtom(m, 'Cl', m.pos[1].clone().addScaledVector(bd, CCL));
+  addBond(m, 1, cl);
+  addHydrogens(m);
+  return m;
+}
+function mirrorMol(m) {
+  return { pos: m.pos.map(p => V(-p.x, p.y, p.z)), el: m.el.slice(), hyb: m.hyb.slice(), bonds: m.bonds.map(b => b.slice()) };
+}
+
+/* --- отрисовка молекулы в сцену --- */
+function renderMol(m) {
+  m.el.forEach((el, i) => {
+    const e = EL[el];
+    (el === 'H' ? hydGroup : molGroup).add(atom(m.pos[i], e.r, e.c));
+  });
+  m.bonds.forEach(b => {
+    const g = (m.el[b[0]] === 'H' || m.el[b[1]] === 'H') ? hydGroup : molGroup;
+    if (b[2] === 2) { doubleBondVis(m.pos[b[0]], m.pos[b[1]], g); addPi(m.pos[b[0]], m.pos[b[1]]); }
+    else g.add(bond(m.pos[b[0]], m.pos[b[1]]));
+  });
+}
+function place(m, target, scale) {
+  scale = scale || 1;
+  const c = V(0, 0, 0);
+  m.pos.forEach(p => c.add(p.clone()));
+  c.multiplyScalar(1 / m.pos.length);
+  m.pos.forEach(p => p.sub(c).multiplyScalar(scale).add(target));
+  renderMol(m);
+  return m;
+}
+
+/* --- сцены режимов --- */
+function buildSkelet(sub) {
+  if (sub === 'c4') {
+    place(molButane(), V(-2.7, 0.15, 0));
+    place(molIsobutane(), V(2.7, 0.15, 0));
+    labelGroup.add(label('бутан', V(-2.7, -2.15, 0)));
+    labelGroup.add(label('изобутан (2-метилпропан)', V(2.7, -2.15, 0), 0.44));
+  } else {
+    place(molPentane(), V(-3.9, 0.1, 0), 0.82);
+    place(molIsopentane(), V(0, 0.1, 0), 0.82);
+    place(molNeopentane(), V(3.9, 0.1, 0), 0.82);
+    labelGroup.add(label('пентан', V(-3.9, -2.15, 0), 0.46));
+    labelGroup.add(label('изопентан', V(0, -2.15, 0), 0.46));
+    labelGroup.add(label('неопентан', V(3.9, -2.15, 0), 0.46));
+  }
+}
+function buildPolozhenie(sub) {
+  if (sub === 'bond') {
+    place(molButene1(), V(-2.55, 0.1, 0));
+    place(molButene2(false), V(2.55, 0.1, 0));
+    labelGroup.add(label('бутен-1', V(-2.55, -2.05, 0)));
+    labelGroup.add(label('CH₂=CH–CH₂–CH₃', V(-2.55, -2.6, 0), 0.38));
+    labelGroup.add(label('бутен-2', V(2.55, -2.05, 0)));
+    labelGroup.add(label('CH₃–CH=CH–CH₃', V(2.55, -2.6, 0), 0.38));
+  } else {
+    place(molButene1(), V(-2.5, 0.1, 0));
+    place(molCyclobutane(), V(2.6, 0.1, 0));
+    labelGroup.add(label('бутен-1 (алкен)', V(-2.5, -2.05, 0), 0.44));
+    labelGroup.add(label('C₄H₈', V(-2.5, -2.6, 0), 0.38));
+    labelGroup.add(label('циклобутан (циклоалкан)', V(2.6, -2.05, 0), 0.44));
+    labelGroup.add(label('C₄H₈', V(2.6, -2.6, 0), 0.38));
+  }
+}
+function buildCisTrans() {
+  place(molButene2(true), V(-2.6, 0.1, 0));
+  place(molButene2(false), V(2.6, 0.1, 0));
+  labelGroup.add(label('цис-бутен-2', V(-2.6, -2.05, 0)));
+  labelGroup.add(label('t°кип = +3,7 °C', V(-2.6, -2.6, 0), 0.38));
+  labelGroup.add(label('транс-бутен-2', V(2.6, -2.05, 0)));
+  labelGroup.add(label('t°кип = +0,9 °C', V(2.6, -2.6, 0), 0.38));
+}
+function buildOpt() {
+  const m = place(molChlorobutane(), V(-2.5, 0.1, 0));
+  const m2 = mirrorMol(m);
+  renderMol(m2);
+  extraGroup.add(glow(m.pos[1], 0.62, COL.hyb, 0.28));
+  extraGroup.add(glow(m2.pos[1], 0.62, COL.hyb, 0.28));
+  const plane = new THREE.Mesh(
+    new THREE.PlaneGeometry(3.6, 4.6),
+    new THREE.MeshBasicMaterial({ color: 0x8b5cf6, transparent: true, opacity: 0.10, side: THREE.DoubleSide, depthWrite: false })
+  );
+  plane.rotation.y = Math.PI / 2;
+  plane.position.set(0, 0.35, 0);
+  extraGroup.add(plane);
+  labelGroup.add(label('2-хлорбутан', V(-2.5, -2.05, 0), 0.44));
+  labelGroup.add(label('зеркальный двойник', V(2.5, -2.05, 0), 0.44));
+  labelGroup.add(label('зеркало', V(0, 2.5, 0), 0.4));
+}
+
+/* --- переключение режимов --- */
+let mode = 'skelet';
+const SUBS = { skelet: 'c4', polozhenie: 'bond' };
+function buildScene() {
+  [molGroup, hydGroup, piGroup, labelGroup, extraGroup].forEach(clearGroup);
+  if (mode === 'skelet') buildSkelet(SUBS.skelet);
+  else if (mode === 'polozhenie') buildPolozhenie(SUBS.polozhenie);
+  else if (mode === 'cistrans') buildCisTrans();
+  else buildOpt();
+  piGroup.visible = document.getElementById('tgPi').checked && (mode === 'polozhenie' || mode === 'cistrans');
+}
+function applyCam() {
+  let c;
+  if (mode === 'skelet') c = SUBS.skelet === 'c5' ? { r: 12.6, theta: 0.5, phi: 1.15 } : { r: 9.4, theta: 0.55, phi: 1.15 };
+  else if (mode === 'polozhenie') c = { r: 9.8, theta: 0.25, phi: 1.25 };
+  else if (mode === 'cistrans') c = { r: 9.6, theta: 0.18, phi: 1.3 };
+  else c = { r: 9.8, theta: 0.3, phi: 1.28 };
+  cam.r = c.r; cam.theta = c.theta; cam.phi = c.phi;
+}
+function updateSubtabs() {
+  document.querySelectorAll('.subtabs').forEach(bar => {
+    const m = bar.id.replace('sub-', '');
+    bar.querySelectorAll('.sub').forEach(b => b.classList.toggle('active', b.dataset.sub === SUBS[m]));
+  });
+}
+function setMode(next, sub) {
+  if (!MODES[next]) next = 'skelet';
+  mode = next;
+  if (sub) {
+    if (mode === 'skelet' && (sub === 'c4' || sub === 'c5')) SUBS.skelet = sub;
+    if (mode === 'polozhenie' && (sub === 'bond' || sub === 'class')) SUBS.polozhenie = sub;
+  }
+  buildScene();
+  applyCam();
+  const cfg = MODES[mode];
+  document.getElementById('pTitle').textContent = cfg.title;
+  document.getElementById('pText').innerHTML = cfg.text;
+  document.getElementById('pFacts').innerHTML = cfg.facts.map(f => '<li>' + f + '</li>').join('');
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+  document.getElementById('sub-skelet').style.display = mode === 'skelet' ? 'flex' : 'none';
+  document.getElementById('sub-polozhenie').style.display = mode === 'polozhenie' ? 'flex' : 'none';
+  updateSubtabs();
+  const piLabel = document.getElementById('tgPi').closest('label');
+  piLabel.style.display = (mode === 'polozhenie' || mode === 'cistrans') ? 'flex' : 'none';
+}
+
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => setMode(t.dataset.mode)));
+document.querySelectorAll('.subtabs .sub').forEach(b => b.addEventListener('click', () => {
+  const m = b.parentElement.id.replace('sub-', '');
+  SUBS[m] = b.dataset.sub;
+  buildScene();
+  applyCam();
+  updateSubtabs();
+}));
+document.getElementById('tgPi').addEventListener('change', e => piGroup.visible = e.target.checked && (mode === 'polozhenie' || mode === 'cistrans'));
+document.getElementById('tgH').addEventListener('change', e => hydGroup.visible = e.target.checked);
+document.getElementById('tgSpin').addEventListener('change', e => cam.auto = e.target.checked);
+
+function resize() {
+  const w = sceneEl.clientWidth, h = sceneEl.clientHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+}
+window.addEventListener('resize', resize);
+
+function animate() {
+  requestAnimationFrame(animate);
+  if (cam.auto && !drag) cam.theta += 0.004;
+  applyCamera();
+  renderer.render(scene, camera);
+}
+
+const params = new URLSearchParams(location.search);
+setMode(params.get('mode'), params.get('sub'));
+resize();
+animate();
+
+/* ---------- мини-тренажёр ---------- */
+const QUIZ = [
+  { q: 'CH₃–CH₂–CH₂–CH₃ и CH₃–CH(CH₃)–CH₃ — это изомеры, гомологи или одно вещество?', a: 'Изомеры! У обоих формула C₄H₁₀, но скелеты разные: у бутана — ровная цепь из 4 атомов C, у 2-метилпропана — цепь из 3 атомов с ответвлением. Один состав + разное строение = изомерия скелета.' },
+  { q: 'Бутен-1 (CH₂=CH–CH₂–CH₃) и бутен-2 (CH₃–CH=CH–CH₃). Какой это вид изомерии?', a: 'Изомерия положения кратной связи: молекулярная формула одна (C₄H₈) и скелет одинаковый, но двойная связь у бутена-1 — между 1-м и 2-м атомами C, а у бутена-2 — между 2-м и 3-м.' },
+  { q: 'Почему у бутена-1 CH₂=CH–CH₂–CH₃ нет цис- и транс-изомеров?', a: 'Цис/транс возможны, только если у каждого атома C двойной связи два разных заместителя. А у первого атома C в бутене-1 (группа CH₂) два одинаковых заместителя — два атома H, «по какую сторону» различить не получится.' },
+  { q: 'Чем изомеры отличаются от гомологов?', a: 'У изомеров молекулярная формула одинаковая, а строение разное (бутан и изобутан — оба C₄H₁₀). У гомологов формулы разные — отличаются на целое число групп CH₂ (CH₄, C₂H₆, C₃H₈…), но строение и свойства похожие.' },
+  { q: 'Как понять, что у молекулы есть зеркальный двойник (оптический изомер)?', a: 'Найти атом углерода с четырьмя разными заместителями — хиральный центр. Например, в 2-хлорбутане у второго атома C заместители H, Cl, CH₃ и C₂H₅ — все четыре разные. Зеркальную копию такой молекулы не удастся наложить на оригинал, как левую перчатку — на правую.' }
+];
+document.getElementById('quizBox').innerHTML = QUIZ.map((it, i) =>
+  '<div class="q" id="q' + i + '">' +
+    '<b>' + (i + 1) + '. ' + it.q + '</b>' +
+    '<div class="reveal">' +
+      '<button onclick="document.getElementById(\'q' + i + '\').classList.add(\'open\')">Показать ответ</button>' +
+      '<div class="ans">' + it.a + '</div>' +
+    '</div>' +
+  '</div>').join('');
+</script>
 </body>
 </html>

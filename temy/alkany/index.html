@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Алканы — 3D-урок</title>
+<style>
+  :root{
+    --ink:#1d2330; --muted:#5b6474; --line:#e3e7ef; --card:#ffffff; --bg:#f4f6fb;
+    --accent:#5b3df5; --accent2:#8b5cf6; --good:#0a8f5b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg)}
+  header{background:linear-gradient(120deg,#4c34e0,#8b5cf6);color:#fff;padding:22px 28px}
+  header h1{margin:0 0 6px;font-size:26px}
+  header p{margin:0;opacity:.9;font-size:15px}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 20px 60px}
+  .topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+  .back{color:var(--accent);text-decoration:none;font-weight:600;font-size:14px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .tab{border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 18px;font-size:15px;font-weight:600;cursor:pointer;color:var(--muted)}
+  .tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  .layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr);gap:16px}
+  @media(max-width:860px){.layout{grid-template-columns:1fr}}
+  .scene-card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  .subtabs{display:none;gap:8px;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid var(--line)}
+  .sub{border:1px solid var(--line);background:#fff;border-radius:10px;padding:6px 12px;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--muted)}
+  .sub.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  .sub:disabled{opacity:.38;cursor:default}
+  .homobar{align-items:center}
+  .homstat{font-weight:700;color:var(--accent);padding:0 8px;font-size:15px}
+  #scene{width:100%;height:520px;position:relative}
+  #scene canvas{display:block}
+  .hint{position:absolute;left:12px;bottom:10px;font-size:12px;color:#8a93a5;background:rgba(255,255,255,.85);padding:4px 10px;border-radius:8px;pointer-events:none}
+  .toggles{display:flex;gap:14px;padding:10px 14px;border-top:1px solid var(--line);flex-wrap:wrap;font-size:14px}
+  .toggles label{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+  .panel h2{margin:0 0 8px;font-size:19px;color:var(--accent)}
+  .panel p{margin:8px 0;font-size:14.5px;line-height:1.55}
+  .facts{list-style:none;margin:10px 0 0;padding:0}
+  .facts li{background:#f4f1ff;border-radius:10px;padding:8px 12px;margin:6px 0;font-size:14px;line-height:1.5}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--muted)}
+  .chip{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:13px;height:13px;border-radius:50%;display:inline-block}
+  table.cheat{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px}
+  table.cheat th,table.cheat td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+  table.cheat th{background:#f4f1ff}
+  table.cheat td b{color:var(--accent)}
+  .cheat h3{margin:16px 0 0;font-size:15.5px;color:var(--ink)}
+  .quiz{margin-top:22px}
+  .quiz h2{font-size:20px;margin:0 0 4px}
+  .quiz .sub{color:var(--muted);font-size:14px;margin:0 0 12px;border:none;background:none;padding:0;cursor:default;font-weight:400}
+  .q{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:10px 0}
+  .q b{font-size:15px}
+  .reveal{margin-top:8px}
+  .reveal button{background:#eef1ff;color:var(--accent);border:none;border-radius:9px;padding:7px 14px;font-weight:600;cursor:pointer;font-size:13.5px}
+  .reveal .ans{display:none;margin-top:8px;background:#eefaf3;border-left:4px solid var(--good);padding:8px 12px;border-radius:8px;font-size:14px;line-height:1.5}
+  .q.open .reveal button{display:none}
+  .q.open .reveal .ans{display:block}
+</style>
+</head>
+<body>
+<header>
+  <h1>Алканы: от метана до декана</h1>
+  <p>Строение · гомологический ряд · номенклатура · химические свойства (§7–§8)</p>
+</header>
+
+<div class="wrap">
+  <div class="topbar">
+    <a class="back" href="../../index.html">← На главную</a>
+    <div class="tabs">
+      <button class="tab active" data-mode="stroenie">Строение</button>
+      <button class="tab" data-mode="gomologi">Гомологи: +CH₂</button>
+      <button class="tab" data-mode="izomery">Названия изомеров</button>
+      <button class="tab" data-mode="reakcii">Реакции</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="scene-card">
+      <div class="subtabs" id="sub-stroenie">
+        <button class="sub active" data-sub="metan">Метан CH₄</button>
+        <button class="sub" data-sub="etan">Этан C₂H₆</button>
+      </div>
+      <div class="subtabs homobar" id="sub-gomologi">
+        <button class="sub" id="btnMinus">− CH₂</button>
+        <span class="homstat" id="homStat">n = 1</span>
+        <button class="sub" id="btnPlus">+ CH₂</button>
+      </div>
+      <div class="subtabs" id="sub-izomery">
+        <button class="sub active" data-sub="metilbutan">2-метилбутан</button>
+        <button class="sub" data-sub="dimetilpropan">2,2-диметилпропан</button>
+        <button class="sub" data-sub="dimetilbutan">2,3-диметилбутан</button>
+      </div>
+      <div class="subtabs" id="sub-reakcii">
+        <button class="sub active" data-sub="galogen">Свет + хлор</button>
+        <button class="sub" data-sub="gorenie">Горение</button>
+        <button class="sub" data-sub="nitrovanie">Нитрование</button>
+        <button class="sub" data-sub="kreking">Крекинг</button>
+        <button class="sub" data-sub="degidr">Дегидрирование</button>
+        <button class="sub" data-sub="poluchenie">Получение</button>
+      </div>
+      <div id="scene"><div class="hint">Вращай мышью · колесо — приблизить</div></div>
+      <div class="toggles">
+        <label><input type="checkbox" id="tgH" checked> Водороды</label>
+        <label><input type="checkbox" id="tgLbl" checked> Подписи</label>
+        <label><input type="checkbox" id="tgSpin"> Автовращение</label>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2 id="pTitle"></h2>
+      <p id="pText"></p>
+      <ul class="facts" id="pFacts"></ul>
+      <div class="legend">
+        <span class="chip"><span class="dot" style="background:#3a3f47"></span> углерод</span>
+        <span class="chip"><span class="dot" style="background:#f2f2f2;border:1px solid #c9ced8"></span> водород</span>
+        <span class="chip"><span class="dot" style="background:#2fae66"></span> хлор</span>
+        <span class="chip"><span class="dot" style="background:#a85832"></span> бром</span>
+        <span class="chip"><span class="dot" style="background:#2f6fed"></span> азот</span>
+        <span class="chip"><span class="dot" style="background:#ef5350"></span> кислород</span>
+        <span class="chip"><span class="dot" style="background:#9b6dd6"></span> натрий</span>
+        <span class="chip"><span class="dot" style="background:#7c4dff;opacity:.5"></span> заместитель / угол</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:16px">
+    <h2>Шпаргалка</h2>
+    <h3>Гомологический ряд алканов (CₙH₂ₙ₊₂)</h3>
+    <table class="cheat">
+      <thead>
+        <tr><th>n</th><th>Формула</th><th>Название</th><th>t°<sub>кип</sub></th><th>Состояние</th><th>Изомеров</th><th>Алкил</th></tr>
+      </thead>
+      <tbody id="homoRows"></tbody>
+    </table>
+    <h3>Химические свойства и получение</h3>
+    <table class="cheat">
+      <tr><th>Реакция</th><th>Уравнение</th><th>Условия</th></tr>
+      <tr><td><b>Галогенирование</b> (замещение)</td><td>CH₄ + Cl₂ → CH₃Cl + HCl (далее → CH₂Cl₂ → CHCl₃ → CCl₄)</td><td>свет (hv), цепной радикальный механизм</td></tr>
+      <tr><td><b>Нитрование</b>, р. Коновалова (замещение)</td><td>C₅H₁₂ + HNO₃(разб.) → C₅H₁₁NO₂ + H₂O</td><td>t ≈ 140 °C</td></tr>
+      <tr><td><b>Горение</b> (окисление)</td><td>CH₄ + 2O₂ → CO₂ + 2H₂O + 878 кДж</td><td>поджигание</td></tr>
+      <tr><td><b>Крекинг</b> (разложение)</td><td>C₁₀H₂₂ → C₅H₁₂ + C₅H₁₀ (алкан + алкен)</td><td>t 500–700 °C или катализатор</td></tr>
+      <tr><td><b>Дегидрирование</b></td><td>C₂H₆ → C₂H₄ + H₂</td><td>Ni (Pt, Cr₂O₃), t°</td></tr>
+      <tr><td><b>Получение</b>: р. Вюрца</td><td>2CH₃Br + 2Na → C₂H₆ + 2NaBr</td><td>сухой эфир</td></tr>
+      <tr><td><b>Получение</b>: гидрирование алкена</td><td>C₂H₄ + H₂ → C₂H₆</td><td>катализатор Ni</td></tr>
+      <tr><td><b>Получение</b>: из карбида алюминия</td><td>Al₄C₃ + 12H₂O → 4Al(OH)₃↓ + 3CH₄↑</td><td>лабораторный способ</td></tr>
+    </table>
+    <p style="font-size:13.5px;color:var(--muted)">Запомни главное: у алканов <b>все связи одинарные σ</b> — это предельные (насыщенные) углеводороды, присоединять им нечего. Поэтому вместо присоединения им свойственно <b>замещение</b> (хлор на свету, нитрование по Коновалову), а также <b>горение</b>, <b>крекинг</b> и <b>дегидрирование</b>. Гомологи отличаются друг от друга на CH₂ и легко узнаются по формуле CₙH₂ₙ₊₂. Природные источники алканов — природный газ и нефть.</p>
+  </div>
+
+  <div class="quiz">
+    <h2>Мини-тренажёр</h2>
+    <p class="sub">Сначала ответь сам, потом нажми «Показать ответ».</p>
+    <div id="quizBox"></div>
+  </div>
+</div>
+
+<script src="../../lib/three.min.js"></script>
+<script>
+/* ---------- справочник гомологов ---------- */
+const HOMO = [
+  { n:1,  name:'метан',  f:'CH₄',    alk:'CH₃ — метил',   t:'−162', st:'газ',      iso:1  },
+  { n:2,  name:'этан',   f:'C₂H₆',   alk:'C₂H₅ — этил',   t:'−89',  st:'газ',      iso:1  },
+  { n:3,  name:'пропан', f:'C₃H₈',   alk:'C₃H₇ — пропил', t:'−42',  st:'газ',      iso:1  },
+  { n:4,  name:'бутан',  f:'C₄H₁₀',  alk:'C₄H₉ — бутил',  t:'−0,5', st:'газ',      iso:2  },
+  { n:5,  name:'пентан', f:'C₅H₁₂',  alk:'C₅H₁₁ — пентил',t:'+36',  st:'жидкость', iso:3  },
+  { n:6,  name:'гексан', f:'C₆H₁₄',  alk:'C₆H₁₃ — гексил',t:'+69',  st:'жидкость', iso:5  },
+  { n:7,  name:'гептан', f:'C₇H₁₆',  alk:'C₇H₁₅ — гептил',t:'+98',  st:'жидкость', iso:9  },
+  { n:8,  name:'октан',  f:'C₈H₁₈',  alk:'C₈H₁₇ — октил', t:'+126', st:'жидкость', iso:18 },
+  { n:9,  name:'нонан',  f:'C₉H₂₀',  alk:'C₉H₁₉ — нонил', t:'+151', st:'жидкость', iso:35 },
+  { n:10, name:'декан',  f:'C₁₀H₂₂', alk:'C₁₀H₂₁ — децил',t:'+174', st:'жидкость', iso:75 }
+];
+
+/* ---------- тексты режимов ---------- */
+const STROE = {
+  metan: {
+    title: 'Молекула метана: идеальный тетраэдр',
+    text: 'Атом углерода в метане — sp³-гибридный: четыре одинаковые гибридные орбитали расходятся к вершинам тетраэдра, и к каждой «прилетает» атом водорода. Все связи C–H — σ-связи: перекрывание орбиталей идёт вдоль линии, соединяющей ядра. Поэтому молекула прочная, симметричная и неполярная.',
+    facts: [
+      'Каждый атом C здесь <b>sp³</b>: 4 соседа, все связи одинарные',
+      'Угол H–C–H: <b>109°28′</b> — дуга на модели показывает его',
+      'Связь C–H: длина <b>0,109 нм</b>, σ, почти неполярная',
+      'Молекула неполярна → метан <b>не растворяется в воде</b>, но хорош в органических растворителях'
+    ]
+  },
+  etan: {
+    title: 'Этан: две «пирамидки» и свободное вращение',
+    text: 'Два sp³-углерода соединены σ-связью C–C. Вокруг одинарной связи атомы вращаются свободно — две группы CH₃ могут поворачиваться друг относительно друга, как два тетраэдра на одной оси. Поэтому цепь любого алкана — не прямая палка, а зигзаг с углами около 109°.',
+    facts: [
+      'Связь C–C: длина <b>0,154 нм</b>, σ-связь',
+      'Вращение вокруг C–C <b>свободное</b> — разные повороты называются конформациями',
+      'Скелет алканов — <b>зигзаг</b> с углами ≈ 109°28′',
+      'Общая формула всех алканов: <b>CₙH₂ₙ₊₂</b> (ациклические, без циклов и кратных связей)'
+    ]
+  }
+};
+
+const MODES_TEXT = {
+  izomery: {
+    title: 'Номенклатура: называем разветвлённый алкан',
+    text: 'Название по ИЮПАК собирается как конструктор: 1) найди самую длинную цепь атомов C — она даст корень названия («пропан», «бутан»…); 2) пронумеруй её с того конца, к которому ближе ответвления; 3) перечисли заместители с номерами атомов, перед которыми они стоят; 4) одинаковые заместители посчитай приставками ди-, три-; если два заместителя висят на одном атоме, его номер пишут дважды (2,2-диметилпропан). Переключай молекулы над сценой и следи за нумерацией.',
+    facts: [
+      'Корень = длина главной цепи: 3 атома C — пропан, 4 — бутан, 5 — пентан…',
+      'Заместители — это алкилы: −CH₃ метил, −C₂H₅ этил',
+      'Нумеруют с того конца, где заместители ближе: получится <b>2</b>-метилбутан, а не 3-метилбутан',
+      'Два одинаковых заместителя — «ди-», три — «три-»; цифры разделяют запятыми: 2,2-диметилпропан',
+      'Если цепей максимальной длины две, главная — та, где больше ответвлений'
+    ]
+  }
+};
+
+const REAK = {
+  galogen: {
+    title: 'Хлорирование на свету (радикальное замещение)',
+    text: 'На свету молекула Cl₂ распадается на радикалы — атомы с неспаренным электроном (Cl•). Радикал вырывает у метана атом H, рождается метильный радикал CH₃•, тот атакует новую молекулу Cl₂ — и цепь продолжается. Это цепная реакция радикального замещения; её механизм объяснил Н. Н. Семёнов (Нобелевская премия 1956 г.).',
+    facts: [
+      'Инициирование: <b>Cl₂ →(hv) 2Cl•</b> — свет даёт энергию на разрыв связи',
+      'Рост цепи: <b>Cl• + CH₄ → HCl + CH₃•</b>, затем <b>CH₃• + Cl₂ → CH₃Cl + Cl•</b>',
+      'Обрыв цепи: встреча двух радикалов, например <b>CH₃• + Cl• → CH₃Cl</b> или <b>CH₃• + CH₃• → C₂H₆</b>',
+      'Если хлора много — замещение идёт дальше: CH₃Cl → CH₂Cl₂ → CHCl₃ → CCl₄',
+      'Легче всего замещается H у третичного атома C, труднее всего — у первичного'
+    ]
+  },
+  gorenie: {
+    title: 'Горение: топливо №1',
+    text: 'При поджигании алканы окисляются кислородом до CO₂ и воды, выделяя много теплоты. На этом держится использование природного газа и бензина как топлива. При недостатке кислорода образуется ядовитый угарный газ CO или сажа.',
+    facts: [
+      '<b>CH₄ + 2O₂ → CO₂ + 2H₂O + 878 кДж</b> — метан горит почти бесцветным пламенем',
+      'Для любого алкана: <b>CₙH₂ₙ₊₂ + (3n+1)/2·O₂ → n CO₂ + (n+1) H₂O</b>',
+      'Мало кислорода: <b>2CH₄ + 3O₂ → 2CO + 4H₂O</b>; совсем мало: <b>CH₄ + O₂ → C + 2H₂O</b> (сажа)',
+      'Октановое число бензина — мера стойкости к преждевременному воспламенению (детонации)'
+    ]
+  },
+  nitrovanie: {
+    title: 'Нитрование по Коновалову',
+    text: 'М. И. Коновалов доказал: даже «инертные» алканы умеют реагировать. Разбавленная азотная кислота при нагревании около 140 °C замещает атом H в алкане на нитрогруппу −NO₂. Легче всего — снова третичный водород.',
+    facts: [
+      '<b>C₅H₁₂ + HNO₃(разб.) →(140 °C) C₅H₁₁NO₂ + H₂O</b> — получаются нитроалканы',
+      'В сцене показан простейший случай: CH₄ + HNO₃ → CH₃NO₂ (нитрометан) + H₂O',
+      'Механизм — радикальный, как у галогенирования',
+      'Лёгкость замещения: третичный H &gt; вторичный &gt; первичный'
+    ]
+  },
+  kreking: {
+    title: 'Крекинг: расщепление длинных цепей',
+    text: 'При сильном нагревании (термический крекинг, 500–700 °C) или на катализаторе (каталитический, ~450 °C) длинные молекулы алканов рвутся на более короткие: получается алкан и алкен. Так из «тяжёлых» фракций нефти получают дополнительный бензин.',
+    facts: [
+      '<b>C₁₀H₂₂ →(t) C₅H₁₂ + C₅H₁₀</b> — алкан плюс алкен с двойной связью',
+      'При каталитическом крекинге цепи ещё и <b>разветвляются</b> → октановое число выше',
+      'Параллельно идут дегидрирование и изомеризация',
+      'Промышленный смысл: больше бензина из каждой тонны нефти'
+    ]
+  },
+  degidr: {
+    title: 'Дегидрирование: отнимаем водород',
+    text: 'На катализаторе (Ni, Pt, Cr₂O₃) при нагревании от алкана отщепляется водород: одинарная связь становится двойной, получается алкен. Это главный промышленный путь получения алкенов. А пиролиз метана при очень высокой температуре даёт ацетилен.',
+    facts: [
+      '<b>C₂H₆ →(Ni, t°) C₂H₄ + H₂</b>',
+      '<b>C₄H₁₀ →(Cr₂O₃, 600 °C) C₄H₈ + H₂</b> — дегидрируют и более длинные цепи',
+      'Пиролиз метана: <b>CH₄ →(1500 °C) C₂H₂ + 3H₂</b>',
+      'Дегидрирование — процесс, обратный гидрированию алкенов'
+    ]
+  },
+  poluchenie: {
+    title: 'Как получают алканы',
+    text: 'Главные природные источники — природный газ (в основном метан) и нефть. В лаборатории и промышленности используют реакцию Вюрца (сращивание двух цепей), гидрирование алкенов, разложение карбида алюминия водой и синтез из CO и H₂. В сцене — реакция Вюрца.',
+    facts: [
+      'Р. Вюрца: <b>2CH₃Br + 2Na → C₂H₆ + 2NaBr</b> (в сухом эфире) — цепь удлиняется',
+      'Гидрирование: <b>C₂H₄ + H₂ →(Ni) C₂H₆</b>',
+      'Карбид алюминия: <b>Al₄C₃ + 12H₂O → 4Al(OH)₃↓ + 3CH₄↑</b>',
+      'Из синтез-газа: <b>CO + 3H₂ →(Ni, t°) CH₄ + H₂O</b>'
+    ]
+  }
+};
+
+/* ---------- сцена ---------- */
+const COL = { bond: 0x9aa3ad, accent: 0x5b3df5 };
+const EL = { C:{r:0.40,c:0x3a3f47}, H:{r:0.22,c:0xf2f2f2}, Cl:{r:0.46,c:0x2fae66}, Br:{r:0.50,c:0xa85832}, N:{r:0.42,c:0x2f6fed}, O:{r:0.38,c:0xef5350}, Na:{r:0.55,c:0x9b6dd6} };
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+const CC = 1.5, CH = 1.05, CD = 1.32;
+const TET = 109.47 * Math.PI / 180;
+const N = V(0, 0, 1);
+
+const sceneEl = document.getElementById('scene');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf7f9fc);
+
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+sceneEl.insertBefore(renderer.domElement, sceneEl.firstChild);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.75));
+const key = new THREE.DirectionalLight(0xffffff, 0.9);
+key.position.set(4, 6, 5);
+scene.add(key);
+const fill = new THREE.DirectionalLight(0xdfe7ff, 0.45);
+fill.position.set(-5, -2, -4);
+scene.add(fill);
+
+const molGroup = new THREE.Group();   // тяжёлые атомы и связи между ними
+const hydGroup = new THREE.Group();   // водороды и их связи
+const labelGroup = new THREE.Group(); // подписи молекул
+const extraGroup = new THREE.Group(); // дуги углов, подсветка заместителей
+scene.add(molGroup, hydGroup, labelGroup, extraGroup);
+
+/* --- простая орбитальная камера: вращение мышью/пальцем, зум колесом --- */
+const cam = { r: 6.4, theta: 0.55, phi: 1.2, target: V(0, 0, 0), auto: false };
+function applyCamera() {
+  cam.phi = Math.max(0.08, Math.min(Math.PI - 0.08, cam.phi));
+  cam.r = Math.max(2.5, Math.min(16, cam.r));
+  camera.position.set(
+    cam.r * Math.sin(cam.phi) * Math.sin(cam.theta),
+    cam.r * Math.cos(cam.phi),
+    cam.r * Math.sin(cam.phi) * Math.cos(cam.theta)
+  );
+  camera.lookAt(cam.target);
+}
+let drag = null;
+renderer.domElement.addEventListener('mousedown', e => drag = { x: e.clientX, y: e.clientY });
+window.addEventListener('mousemove', e => {
+  if (!drag) return;
+  cam.theta -= (e.clientX - drag.x) * 0.006;
+  cam.phi -= (e.clientY - drag.y) * 0.006;
+  drag = { x: e.clientX, y: e.clientY };
+});
+window.addEventListener('mouseup', () => drag = null);
+renderer.domElement.addEventListener('touchstart', e => { const t = e.touches[0]; drag = { x: t.clientX, y: t.clientY }; }, { passive: true });
+renderer.domElement.addEventListener('touchmove', e => {
+  if (!drag) return;
+  const t = e.touches[0];
+  cam.theta -= (t.clientX - drag.x) * 0.006;
+  cam.phi -= (t.clientY - drag.y) * 0.006;
+  drag = { x: t.clientX, y: t.clientY };
+}, { passive: true });
+renderer.domElement.addEventListener('touchend', () => drag = null);
+renderer.domElement.addEventListener('wheel', e => { cam.r *= 1 + Math.sign(e.deltaY) * 0.12; e.preventDefault(); }, { passive: false });
+
+/* --- базовые помощники рисования --- */
+function clearGroup(g) {
+  g.traverse(o => {
+    if (o.isSprite) return; // у спрайтов-подписей общие ресурсы не освобождаем
+    if (o.geometry) o.geometry.dispose();
+    if (o.material) { if (o.material.map) o.material.map.dispose(); o.material.dispose(); }
+  });
+  while (g.children.length) g.remove(g.children[0]);
+}
+function atom(pos, r, color) {
+  const m = new THREE.Mesh(
+    new THREE.SphereGeometry(r, 36, 24),
+    new THREE.MeshStandardMaterial({ color, roughness: 0.35, metalness: 0.05 })
+  );
+  m.position.copy(pos);
+  return m;
+}
+function bond(a, b, r) {
+  r = r || 0.07;
+  const dir = new THREE.Vector3().subVectors(b, a);
+  const len = dir.length();
+  const m = new THREE.Mesh(
+    new THREE.CylinderGeometry(r, r, len, 16),
+    new THREE.MeshStandardMaterial({ color: COL.bond, roughness: 0.5 })
+  );
+  m.position.copy(a).addScaledVector(dir, 0.5);
+  m.quaternion.setFromUnitVectors(V(0, 1, 0), dir.clone().normalize());
+  return m;
+}
+function doubleBondVis(a, b, g) {
+  g.add(bond(a, b, 0.09));
+  const u = b.clone().sub(a).normalize();
+  const p = new THREE.Vector3().crossVectors(N, u).normalize();
+  [0.13, -0.13].forEach(s => {
+    g.add(bond(a.clone().addScaledVector(p, s), b.clone().addScaledVector(p, s), 0.032));
+  });
+}
+function label(text, pos, h) {
+  h = h || 0.5;
+  const c = document.createElement('canvas');
+  let x = c.getContext('2d');
+  const font = '600 44px "Segoe UI", Arial, sans-serif';
+  x.font = font;
+  const tw = Math.ceil(x.measureText(text).width);
+  const w = tw + 56, hh = 84;
+  c.width = w; c.height = hh;
+  x = c.getContext('2d');
+  x.font = font;
+  x.fillStyle = 'rgba(255,255,255,.95)';
+  if (x.roundRect) { x.beginPath(); x.roundRect(2, 2, w - 4, hh - 4, 20); x.fill(); x.strokeStyle = '#e3e7ef'; x.lineWidth = 2; x.stroke(); }
+  else x.fillRect(2, 2, w - 4, hh - 4);
+  x.fillStyle = '#3a3f47';
+  x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.fillText(text, w / 2, hh / 2 + 2);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), transparent: true }));
+  sp.scale.set(h * w / hh, h, 1);
+  sp.position.copy(pos);
+  return sp;
+}
+function glow(pos, r, color, op) {
+  const m = new THREE.Mesh(
+    new THREE.SphereGeometry(r, 32, 20),
+    new THREE.MeshStandardMaterial({ color: color, transparent: true, opacity: op == null ? 0.3 : op, roughness: 0.3, depthWrite: false })
+  );
+  m.position.copy(pos);
+  return m;
+}
+function angleArc(center, d1, d2, radius, color) {
+  const pts = [];
+  const steps = 28;
+  for (let i = 0; i <= steps; i++) {
+    const p = d1.clone().lerp(d2, i / steps).normalize().multiplyScalar(radius).add(center);
+    pts.push(p);
+  }
+  return new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(pts),
+    new THREE.LineBasicMaterial({ color })
+  );
+}
+
+/* --- геометрия молекул --- */
+function newMol() { return { pos: [], el: [], hyb: [], bonds: [] }; }
+function addAtom(m, el, pos) { m.pos.push(pos); m.el.push(el); m.hyb.push(undefined); return m.pos.length - 1; }
+function addBond(m, i, j, order) { m.bonds.push([i, j, order || 1]); }
+function neighbors(m, i) {
+  return m.bonds.filter(b => b[0] === i || b[1] === i).map(b => b[0] === i ? b[1] : b[0]);
+}
+// три направления под 109,47° к u (тетраэдр); одно лежит в плоскости молекулы
+function tetraDirs(u) {
+  const v = new THREE.Vector3().crossVectors(u, N).normalize();
+  const w = new THREE.Vector3().crossVectors(v, u).normalize();
+  return [0, 120, 240].map(deg => {
+    const f = deg * Math.PI / 180;
+    return u.clone().multiplyScalar(Math.cos(TET))
+      .addScaledVector(v, Math.sin(TET) * Math.cos(f))
+      .addScaledVector(w, Math.sin(TET) * Math.sin(f)).normalize();
+  });
+}
+// два направления под 120° к u, оба в плоскости молекулы
+function triDirs(u) {
+  const v = new THREE.Vector3().crossVectors(u, N).normalize();
+  return [1, -1].map(s => u.clone().multiplyScalar(-0.5).addScaledVector(v, 0.866 * s).normalize());
+}
+// свободные направления атома C (куда встанут H или ветвь)
+function freeDirs(m, i) {
+  const dirs = neighbors(m, i).map(j => m.pos[j].clone().sub(m.pos[i]).normalize());
+  if (m.hyb[i] === 'sp2') {
+    if (dirs.length === 1) return triDirs(dirs[0]);
+    return [dirs[0].clone().add(dirs[1]).negate().normalize()];
+  }
+  if (dirs.length === 1) return tetraDirs(dirs[0]);
+  if (dirs.length === 2) {
+    const m1 = dirs[0].clone().add(dirs[1]).negate().normalize();
+    const t = new THREE.Vector3().crossVectors(dirs[0], dirs[1]).normalize();
+    const b = 54.74 * Math.PI / 180;
+    return [m1.clone().multiplyScalar(Math.cos(b)).addScaledVector(t, Math.sin(b)).normalize(),
+            m1.clone().multiplyScalar(Math.cos(b)).addScaledVector(t, -Math.sin(b)).normalize()];
+  }
+  if (dirs.length === 3) return [dirs[0].clone().add(dirs[1]).add(dirs[2]).negate().normalize()];
+  return [];
+}
+function addHydrogens(m) {
+  for (let i = 0; i < m.pos.length; i++) {
+    if (m.el[i] !== 'C') continue;
+    freeDirs(m, i).forEach(d => {
+      const h = addAtom(m, 'H', m.pos[i].clone().addScaledVector(d, CH));
+      addBond(m, i, h);
+    });
+  }
+}
+// зигзаг-цепь атомов C (углы 109,47°, цепь в плоскости xy)
+function growChain(m, i0, dir, count) {
+  const axis = dir.clone().normalize();
+  let prev = i0, d = axis.clone(), idx = i0;
+  for (let k = 0; k < count; k++) {
+    idx = addAtom(m, 'C', m.pos[prev].clone().addScaledVector(d, CC));
+    addBond(m, prev, idx);
+    if (k < count - 1) {
+      const back = d.clone().negate();
+      const v = new THREE.Vector3().crossVectors(back, N).normalize();
+      const cand = [back.clone().multiplyScalar(Math.cos(TET)).addScaledVector(v, Math.sin(TET)).normalize(),
+                    back.clone().multiplyScalar(Math.cos(TET)).addScaledVector(v, -Math.sin(TET)).normalize()];
+      d = cand[0].dot(axis) >= cand[1].dot(axis) ? cand[0] : cand[1];
+    }
+    prev = idx;
+  }
+  return idx;
+}
+
+/* --- конкретные молекулы --- */
+const MDIRS = [V(1, 1, 1), V(1, -1, -1), V(-1, 1, -1), V(-1, -1, 1)].map(d => d.normalize());
+function molMethane() {
+  const m = newMol();
+  const c = addAtom(m, 'C', V(0, 0, 0));
+  MDIRS.forEach(d => { const h = addAtom(m, 'H', d.clone().multiplyScalar(CH)); addBond(m, c, h); });
+  return m;
+}
+function molEthane() {
+  const m = newMol();
+  addAtom(m, 'C', V(0, 0, 0));
+  addAtom(m, 'C', V(CC, 0, 0));
+  addBond(m, 0, 1);
+  addHydrogens(m);
+  return m;
+}
+function molChain(n) {
+  if (n === 1) return molMethane();
+  const m = newMol();
+  addAtom(m, 'C', V(0, 0, 0));
+  growChain(m, 0, V(1, 0, 0), n - 1);
+  addHydrogens(m);
+  return m;
+}
+function molDiatomic(el1, el2, dist, order) {
+  const m = newMol();
+  addAtom(m, el1, V(-dist / 2, 0, 0));
+  addAtom(m, el2, V(dist / 2, 0, 0));
+  addBond(m, 0, 1, order || 1);
+  return m;
+}
+function molHCl() {
+  const m = newMol();
+  addAtom(m, 'H', V(-0.7, 0, 0));
+  addAtom(m, 'Cl', V(0.7, 0, 0));
+  addBond(m, 0, 1);
+  return m;
+}
+function molCH3X(el, dist) { // хлорметан, бромметан
+  const m = newMol();
+  addAtom(m, 'C', V(-dist / 2, 0, 0));
+  addAtom(m, el, V(dist / 2, 0, 0));
+  addBond(m, 0, 1);
+  addHydrogens(m);
+  return m;
+}
+function molCO2() {
+  const m = newMol();
+  addAtom(m, 'C', V(0, 0, 0));
+  addAtom(m, 'O', V(-1.25, 0, 0));
+  addAtom(m, 'O', V(1.25, 0, 0));
+  addBond(m, 0, 1, 2);
+  addBond(m, 0, 2, 2);
+  return m;
+}
+function molH2O() {
+  const m = newMol();
+  const o = addAtom(m, 'O', V(0, 0, 0));
+  addAtom(m, 'H', V(-0.85, 0.62, 0));
+  addAtom(m, 'H', V(0.85, 0.62, 0));
+  addBond(m, o, 1);
+  addBond(m, o, 2);
+  return m;
+}
+function molHNO3() {
+  const m = newMol();
+  const nn = addAtom(m, 'N', V(0, 0, 0));
+  addAtom(m, 'O', V(-0.62, 1.05, 0));
+  addAtom(m, 'O', V(-0.62, -1.05, 0));
+  const o3 = addAtom(m, 'O', V(1.2, 0, 0));
+  addAtom(m, 'H', V(2.28, 0, 0));
+  addBond(m, nn, 1, 2);
+  addBond(m, nn, 2, 2);
+  addBond(m, nn, o3);
+  addBond(m, o3, 4);
+  return m;
+}
+function molNitromethane() {
+  const m = newMol();
+  const c = addAtom(m, 'C', V(0, 0, 0));
+  const nn = addAtom(m, 'N', V(1.35, 0, 0));
+  addAtom(m, 'O', V(1.95, 1.04, 0));
+  addAtom(m, 'O', V(1.95, -1.04, 0));
+  addBond(m, c, nn);
+  addBond(m, nn, 2, 2);
+  addBond(m, nn, 3, 2);
+  addHydrogens(m);
+  return m;
+}
+function molEthylene() {
+  const m = newMol();
+  const c1 = addAtom(m, 'C', V(0, 0, 0)); m.hyb[c1] = 'sp2';
+  const c2 = addAtom(m, 'C', V(CD, 0, 0)); m.hyb[c2] = 'sp2';
+  addBond(m, c1, c2, 2);
+  addHydrogens(m);
+  return m;
+}
+function molPentene() {
+  const m = newMol();
+  const c1 = addAtom(m, 'C', V(0, 0, 0)); m.hyb[c1] = 'sp2';
+  const c2 = addAtom(m, 'C', V(CD, 0, 0)); m.hyb[c2] = 'sp2';
+  addBond(m, c1, c2, 2);
+  growChain(m, c2, V(0.5, 0.866, 0), 3);
+  addHydrogens(m);
+  return m;
+}
+function molNaBr() {
+  const m = newMol();
+  addAtom(m, 'Na', V(-0.85, 0, 0));
+  addAtom(m, 'Br', V(0.95, 0, 0));
+  addBond(m, 0, 1);
+  return m;
+}
+// изомеры с данными для нумерации главной цепи
+function isoMethylbutane() {
+  const m = newMol();
+  addAtom(m, 'C', V(0, 0, 0));
+  growChain(m, 0, V(1, 0, 0), 3);
+  const bd = freeDirs(m, 1)[0];
+  const br = addAtom(m, 'C', m.pos[1].clone().addScaledVector(bd, CC));
+  addBond(m, 1, br);
+  addHydrogens(m);
+  return { m, chain: [0, 1, 2, 3], branches: [br], name: '2-метилбутан', extra: '(изопентан)' };
+}
+function isoDimethylpropane() {
+  const m = newMol();
+  const c = addAtom(m, 'C', V(0, 0, 0));
+  const dirs = [V(1, 0, 0)].concat(tetraDirs(V(1, 0, 0)));
+  const ids = dirs.map(d => {
+    const i = addAtom(m, 'C', m.pos[c].clone().addScaledVector(d, CC));
+    addBond(m, c, i);
+    return i;
+  });
+  addHydrogens(m);
+  return { m, chain: [ids[0], c, ids[1]], branches: [ids[2], ids[3]], name: '2,2-диметилпропан', extra: '(неопентан)' };
+}
+function isoDimethylbutane() {
+  const m = newMol();
+  addAtom(m, 'C', V(0, 0, 0));
+  growChain(m, 0, V(1, 0, 0), 3);
+  const brs = [1, 2].map(i => {
+    const bd = freeDirs(m, i)[0];
+    const br = addAtom(m, 'C', m.pos[i].clone().addScaledVector(bd, CC));
+    addBond(m, i, br);
+    return br;
+  });
+  addHydrogens(m);
+  return { m, chain: [0, 1, 2, 3], branches: brs, name: '2,3-диметилбутан', extra: '' };
+}
+const ISO = { metilbutan: isoMethylbutane, dimetilpropan: isoDimethylpropane, dimetilbutan: isoDimethylbutane };
+
+/* --- отрисовка молекулы в сцену --- */
+function renderMol(m) {
+  m.el.forEach((el, i) => {
+    const e = EL[el];
+    (el === 'H' ? hydGroup : molGroup).add(atom(m.pos[i], e.r, e.c));
+  });
+  m.bonds.forEach(b => {
+    const g = (m.el[b[0]] === 'H' || m.el[b[1]] === 'H') ? hydGroup : molGroup;
+    if (b[2] === 2) doubleBondVis(m.pos[b[0]], m.pos[b[1]], g);
+    else g.add(bond(m.pos[b[0]], m.pos[b[1]]));
+  });
+}
+function place(m, target, scale) {
+  scale = scale || 1;
+  const c = V(0, 0, 0);
+  m.pos.forEach(p => c.add(p.clone()));
+  c.multiplyScalar(1 / m.pos.length);
+  m.pos.forEach(p => p.sub(c).multiplyScalar(scale).add(target));
+  renderMol(m);
+  return m;
+}
+
+/* --- сцены режимов --- */
+function buildStroenie(sub) {
+  if (sub === 'etan') {
+    place(molEthane(), V(0, 0.35, 0));
+    labelGroup.add(label('этан C₂H₆ — зигзаг', V(0, -2.4, 0), 0.5));
+    labelGroup.add(label('C–C = 0,154 нм', V(0, 2.25, 0), 0.42));
+  } else {
+    const m = place(molMethane(), V(0, 0.35, 0));
+    const pC = m.pos[0];
+    const d1 = m.pos[1].clone().sub(pC).normalize();
+    const d2 = m.pos[2].clone().sub(pC).normalize();
+    extraGroup.add(angleArc(pC, d1, d2, 1.55, COL.accent));
+    const bis = d1.clone().add(d2).normalize();
+    extraGroup.add(label('109°28′', pC.clone().addScaledVector(bis, 2.45), 0.46));
+    labelGroup.add(label('метан CH₄ — тетраэдр', V(0, -2.4, 0), 0.5));
+  }
+}
+function buildGomologi(n) {
+  const h = HOMO[n - 1];
+  const m = molChain(n);
+  const s = n <= 3 ? 1 : n <= 5 ? 0.9 : n <= 8 ? 0.78 : 0.68;
+  place(m, V(0, 0.35, 0), s);
+  labelGroup.add(label(h.name + ' · ' + h.f, V(0, -2.5, 0), 0.52));
+}
+function buildIzomery(sub) {
+  const b = ISO[sub]();
+  place(b.m, V(0, 0.5, 0), 0.92);
+  b.chain.forEach((idx, i) => {
+    labelGroup.add(label(String(i + 1), b.m.pos[idx].clone().add(V(0, 1.05, 0.55)), 0.4));
+  });
+  b.branches.forEach(idx => extraGroup.add(glow(b.m.pos[idx], 0.52, 0x7c4dff, 0.32)));
+  labelGroup.add(label(b.name, V(0, -2.45, 0), 0.5));
+  if (b.extra) labelGroup.add(label(b.extra, V(0, -3.05, 0), 0.4));
+}
+function buildReakcii(sub) {
+  const A = (txt, p, h) => labelGroup.add(label(txt, p, h));
+  if (sub === 'galogen') {
+    place(molMethane(), V(-3.3, 0.9, 0));
+    place(molDiatomic('Cl', 'Cl', 1.9, 2), V(-3.3, -1.5, 0));
+    place(molCH3X('Cl', 1.78), V(3.3, 0.9, 0));
+    place(molHCl(), V(3.4, -1.6, 0));
+    A('→', V(0, 0.2, 0), 0.95);
+    A('hv (свет)', V(0, 1.6, 0), 0.44);
+    A('CH₄ + Cl₂', V(-3.3, -2.8, 0), 0.44);
+    A('CH₃Cl + HCl', V(3.3, -2.8, 0), 0.44);
+  } else if (sub === 'gorenie') {
+    place(molMethane(), V(-3.3, 0.9, 0));
+    place(molDiatomic('O', 'O', 1.5, 2), V(-3.3, -1.4, 0));
+    place(molCO2(), V(2.9, 1.0, 0));
+    place(molH2O(), V(3.2, -1.5, 0));
+    A('→', V(0, 0.2, 0), 0.95);
+    A('пламя', V(0, 1.6, 0), 0.44);
+    A('CH₄ + 2O₂', V(-3.3, -2.6, 0), 0.44);
+    A('CO₂ + 2H₂O + Q', V(3.1, -2.7, 0), 0.44);
+  } else if (sub === 'nitrovanie') {
+    place(molMethane(), V(-3.2, 1.1, 0));
+    place(molHNO3(), V(-3.2, -1.5, 0), 0.95);
+    place(molNitromethane(), V(3.2, 0.35, 0), 0.95);
+    A('→', V(0, 0.2, 0), 0.95);
+    A('HNO₃ разб., 140 °C', V(0, 1.7, 0), 0.4);
+    A('CH₄ + HNO₃', V(-3.2, -3.0, 0), 0.44);
+    A('CH₃NO₂ + H₂O', V(3.2, -2.5, 0), 0.44);
+  } else if (sub === 'kreking') {
+    place(molChain(10), V(0, 1.95, 0), 0.6);
+    place(molChain(5), V(-2.5, -1.5, 0), 0.82);
+    place(molPentene(), V(2.8, -1.5, 0), 0.82);
+    A('↓ t = 500–700 °C ↓', V(0, 0.45, 0), 0.42);
+    A('C₁₀H₂₂', V(0, 3.15, 0), 0.46);
+    A('C₅H₁₂ (алкан)', V(-2.5, -3.1, 0), 0.42);
+    A('C₅H₁₀ (алкен)', V(2.8, -3.1, 0), 0.42);
+  } else if (sub === 'degidr') {
+    place(molEthane(), V(-3.1, 0.5, 0));
+    place(molEthylene(), V(2.8, 1.0, 0));
+    place(molDiatomic('H', 'H', 0.9, 1), V(3.3, -1.5, 0));
+    A('→', V(0, 0.2, 0), 0.95);
+    A('Ni, t°', V(0, 1.6, 0), 0.44);
+    A('C₂H₆', V(-3.1, -2.5, 0), 0.44);
+    A('C₂H₄ + H₂', V(3.0, -2.35, 0), 0.44);
+  } else {
+    place(molCH3X('Br', 2.0), V(-3.4, 1.3, 0));
+    place(molCH3X('Br', 2.0), V(-3.4, -1.3, 0));
+    place(molEthane(), V(3.2, 1.1, 0));
+    place(molNaBr(), V(3.3, -1.4, 0));
+    A('→', V(0, 0.2, 0), 0.95);
+    A('сухой эфир', V(0, 1.7, 0), 0.42);
+    A('2CH₃Br + 2Na', V(-3.4, -2.9, 0), 0.44);
+    A('C₂H₆ + 2NaBr', V(3.3, -2.9, 0), 0.44);
+  }
+}
+
+/* --- переключение режимов --- */
+let mode = 'stroenie';
+const SUBS = { stroenie: 'metan', izomery: 'metilbutan', reakcii: 'galogen' };
+let homoN = 1;
+
+function buildScene() {
+  [molGroup, hydGroup, labelGroup, extraGroup].forEach(clearGroup);
+  if (mode === 'stroenie') buildStroenie(SUBS.stroenie);
+  else if (mode === 'gomologi') buildGomologi(homoN);
+  else if (mode === 'izomery') buildIzomery(SUBS.izomery);
+  else buildReakcii(SUBS.reakcii);
+  hydGroup.visible = document.getElementById('tgH').checked;
+  labelGroup.visible = document.getElementById('tgLbl').checked;
+}
+function applyCam() {
+  let c;
+  if (mode === 'stroenie') c = SUBS.stroenie === 'metan' ? { r: 6.4, theta: 0.55, phi: 1.2 } : { r: 7.6, theta: 0.75, phi: 1.15 };
+  else if (mode === 'gomologi') {
+    const r = homoN === 1 ? 5.8 : homoN === 2 ? 6.8 : Math.min(15, 4.8 + 1.1 * homoN);
+    c = { r, theta: 0.55, phi: 1.12 };
+  }
+  else if (mode === 'izomery') c = { r: 9.2, theta: 0.5, phi: 1.15 };
+  else {
+    if (SUBS.reakcii === 'kreking') c = { r: 12.8, theta: 0.5, phi: 1.05 };
+    else if (SUBS.reakcii === 'poluchenie') c = { r: 11.2, theta: 0.35, phi: 1.18 };
+    else c = { r: 10.6, theta: 0.3, phi: 1.18 };
+  }
+  cam.r = c.r; cam.theta = c.theta; cam.phi = c.phi;
+}
+function updatePanel() {
+  let cfg;
+  if (mode === 'stroenie') cfg = STROE[SUBS.stroenie];
+  else if (mode === 'gomologi') {
+    const h = HOMO[homoN - 1];
+    cfg = {
+      title: 'Гомологический ряд: ' + h.name,
+      text: 'Гомологи — вещества одного класса, схожие по строению и свойствам; каждый следующий отличается от предыдущего на группу CH₂ — это гомологическая разность. Весь ряд алканов задаётся одной формулой CₙH₂ₙ₊₂. Жми «+ CH₂» над сценой и смотри, как растёт цепь.',
+      facts: [
+        'В сцене: <b>' + h.name + '</b>, ' + h.f + ' — при n = ' + h.n + ' формула даёт 2·' + h.n + '+2 = ' + (2 * h.n + 2) + ' атомов H',
+        'Алкил этого гомолога (одновалентный радикал): <b>' + h.alk + '</b>',
+        't°<sub>кип</sub> = <b>' + h.t + ' °C</b> → ' + h.st + ' (газы — до C₄, с C₅ — жидкости)',
+        'Шаг ряда: <b>+CH₂ = +14 а.е.м.</b> — физические свойства меняются плавно, химические почти не меняются',
+        'Изомеров у ' + h.f + ' — <b>' + h.iso + '</b>: чем длиннее цепь, тем больше способов её «свернуть»'
+      ]
+    };
+  }
+  else if (mode === 'izomery') cfg = MODES_TEXT.izomery;
+  else cfg = REAK[SUBS.reakcii];
+  document.getElementById('pTitle').textContent = cfg.title;
+  document.getElementById('pText').innerHTML = cfg.text;
+  document.getElementById('pFacts').innerHTML = cfg.facts.map(f => '<li>' + f + '</li>').join('');
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+  document.getElementById('sub-stroenie').style.display = mode === 'stroenie' ? 'flex' : 'none';
+  document.getElementById('sub-gomologi').style.display = mode === 'gomologi' ? 'flex' : 'none';
+  document.getElementById('sub-izomery').style.display = mode === 'izomery' ? 'flex' : 'none';
+  document.getElementById('sub-reakcii').style.display = mode === 'reakcii' ? 'flex' : 'none';
+  document.querySelectorAll('.subtabs .sub[data-sub]').forEach(b => {
+    const bar = b.parentElement.id.replace('sub-', '');
+    b.classList.toggle('active', SUBS[bar] === b.dataset.sub);
+  });
+  document.getElementById('homStat').textContent = 'n = ' + homoN;
+  document.getElementById('btnMinus').disabled = homoN <= 1;
+  document.getElementById('btnPlus').disabled = homoN >= 10;
+}
+function setMode(next, sub) {
+  if (['stroenie', 'gomologi', 'izomery', 'reakcii'].indexOf(next) < 0) next = 'stroenie';
+  mode = next;
+  if (sub) {
+    if (mode === 'stroenie' && (sub === 'metan' || sub === 'etan')) SUBS.stroenie = sub;
+    if (mode === 'izomery' && ISO[sub]) SUBS.izomery = sub;
+    if (mode === 'reakcii' && REAK[sub]) SUBS.reakcii = sub;
+  }
+  buildScene();
+  applyCam();
+  updatePanel();
+}
+
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => setMode(t.dataset.mode)));
+document.querySelectorAll('.subtabs .sub[data-sub]').forEach(b => b.addEventListener('click', () => setMode(mode, b.dataset.sub)));
+document.getElementById('btnPlus').addEventListener('click', () => {
+  if (homoN < 10) { homoN++; buildScene(); applyCam(); updatePanel(); }
+});
+document.getElementById('btnMinus').addEventListener('click', () => {
+  if (homoN > 1) { homoN--; buildScene(); applyCam(); updatePanel(); }
+});
+document.getElementById('tgH').addEventListener('change', e => hydGroup.visible = e.target.checked);
+document.getElementById('tgLbl').addEventListener('change', e => labelGroup.visible = e.target.checked);
+document.getElementById('tgSpin').addEventListener('change', e => cam.auto = e.target.checked);
+
+function resize() {
+  const w = sceneEl.clientWidth, h = sceneEl.clientHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+}
+window.addEventListener('resize', resize);
+
+function animate() {
+  requestAnimationFrame(animate);
+  if (cam.auto && !drag) cam.theta += 0.004;
+  applyCamera();
+  renderer.render(scene, camera);
+}
+
+const params = new URLSearchParams(location.search);
+homoN = Math.max(1, Math.min(10, parseInt(params.get('n'), 10) || 1));
+setMode(params.get('mode'), params.get('sub'));
+resize();
+animate();
+
+/* ---------- шпаргалка: ряд гомологов ---------- */
+document.getElementById('homoRows').innerHTML = HOMO.map(h =>
+  '<tr><td>' + h.n + '</td><td><b>' + h.f + '</b></td><td>' + h.name + '</td><td>' + h.t + ' °C</td><td>' + h.st + '</td><td>' + h.iso + '</td><td>' + h.alk + '</td></tr>'
+).join('');
+
+/* ---------- мини-тренажёр ---------- */
+const QUIZ = [
+  { q: 'Какова общая формула алканов и что она означает?', a: 'CₙH₂ₙ₊₂ — ациклические углеводороды только с одинарными связями. Проверка на метане: n = 1 → 2·1+2 = 4 атома H, то есть CH₄. ✔' },
+  { q: 'Напиши формулу и название гомолога этана с пятью атомами углерода.', a: 'C₅H₁₂ — пентан. От этана до него три шага по гомологической разности CH₂: C₂H₆ → C₃H₈ → C₄H₁₀ → C₅H₁₂.' },
+  { q: 'Почему алканы не вступают в реакции присоединения?', a: 'Они предельные (насыщенные): все связи одинарные σ, π-связей нет — присоединяться не к чему. Вместо этого алканам свойственно замещение (хлорирование на свету, нитрование по Коновалову).' },
+  { q: 'Какая стадия запускает хлорирование метана на свету и как называется весь механизм?', a: 'Инициирование: Cl₂ →(hv) 2Cl• — свет разрывает связь, и появляются радикалы. Дальше идёт рост цепи (Cl• и CH₃• по очереди атакуют молекулы) и обрыв цепи при встрече радикалов. Это цепная радикальная реакция замещения.' },
+  { q: 'Назови по ИЮПАК: CH₃–CH(CH₃)–CH₂–CH₃.', a: '2-метилбутан. Главная (самая длинная) цепь — 4 атома C, значит «бутан»; нумеруем с того конца, где ближе ответвление, — метил оказывается у атома №2. Название: 2-метилбутан (второе имя — изопентан).' }
+];
+document.getElementById('quizBox').innerHTML = QUIZ.map((it, i) =>
+  '<div class="q" id="q' + i + '">' +
+    '<b>' + (i + 1) + '. ' + it.q + '</b>' +
+    '<div class="reveal">' +
+      '<button onclick="document.getElementById(\'q' + i + '\').classList.add(\'open\')">Показать ответ</button>' +
+      '<div class="ans">' + it.a + '</div>' +
+    '</div>' +
+  '</div>').join('');
+</script>
+</body>
+</html>

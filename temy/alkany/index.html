@@ -57,6 +57,33 @@
   .reveal .ans{display:none;margin-top:8px;background:#eefaf3;border-left:4px solid var(--good);padding:8px 12px;border-radius:8px;font-size:14px;line-height:1.5}
   .q.open .reveal button{display:none}
   .q.open .reveal .ans{display:block}
+  /* тест: цепочки превращений */
+  .chains .sub{color:var(--muted);font-size:14px;margin:4px 0 12px}
+  .chainbar{display:flex;align-items:stretch;gap:6px;flex-wrap:wrap;background:#f7f8fc;border:1px solid var(--line);border-radius:14px;padding:14px}
+  .pill{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:7px 12px;text-align:center;align-self:center}
+  .pill b{display:block;font-size:15px}
+  .pill span{font-size:11.5px;color:var(--muted)}
+  .stepcell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:120px}
+  .rslot{font-size:11.5px;font-weight:700;color:#9aa3ad;background:#eef1f6;border-radius:8px;padding:2px 9px}
+  .stepcell.active .rslot{background:#efeaff;color:var(--accent);box-shadow:0 0 0 2px #d9ceff}
+  .stepcell.done .rslot{background:#eefaf3;color:var(--good)}
+  .stepcell.done.bad .rslot{background:#fdecec;color:#c0392b}
+  .arrow{font-size:20px;color:#8a93a5}
+  .chainq{margin-top:12px}
+  .chainq .qq{font-size:15px;font-weight:600;margin:0 0 2px}
+  .ansgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;margin-top:10px}
+  .ansbtn{border:1.5px solid var(--line);background:#fff;border-radius:11px;padding:10px 12px;font-size:14px;font-weight:600;cursor:pointer;text-align:left;font-family:inherit;color:var(--ink)}
+  .ansbtn:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+  .ansbtn.ok{background:#eefaf3;border-color:var(--good);color:var(--good)}
+  .ansbtn.no{background:#fdecec;border-color:#c0392b;color:#c0392b}
+  .ansbtn:disabled{cursor:default;opacity:.9}
+  .chainfb{margin-top:10px;font-size:14px;border-radius:10px;padding:8px 12px;background:#f4f1ff;line-height:1.5}
+  .chainfb.ok{background:#eefaf3;color:var(--good)}
+  .chainfb.no{background:#fdecec;color:#c0392b}
+  .chainctl{display:flex;align-items:center;gap:14px;margin-top:14px;flex-wrap:wrap}
+  .chainctl button{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:9px 18px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
+  .chainctl button:hover{filter:brightness(1.08)}
+  .chainctl .stat{color:var(--muted);font-size:13.5px}
 </style>
 </head>
 <body>
@@ -153,6 +180,17 @@
     <h2>Мини-тренажёр</h2>
     <p class="sub">Сначала ответь сам, потом нажми «Показать ответ».</p>
     <div id="quizBox"></div>
+  </div>
+
+  <div class="panel chains" style="margin-top:16px">
+    <h2>Тест: цепочки превращений</h2>
+    <p class="sub">Собери цепочку: выбери, какой реагент и условие написать над каждой стрелкой. Первые три цепочки — классика, дальше каждая собирается заново из всех реакций §§7–8, поэтому задания почти не повторяются.</p>
+    <div class="chainbar" id="chainBar"></div>
+    <div class="chainq" id="chainQ"></div>
+    <div class="chainctl">
+      <button id="chainNew">Ещё цепочка ⟳</button>
+      <span class="stat" id="chainScore"></span>
+    </div>
   </div>
 </div>
 
@@ -880,6 +918,191 @@ document.getElementById('quizBox').innerHTML = QUIZ.map((it, i) =>
       '<div class="ans">' + it.a + '</div>' +
     '</div>' +
   '</div>').join('');
+</script>
+<script>
+/* ---------- тест: цепочки превращений ---------- */
+const CH_SUBS = {
+  CH4:{f:'CH₄',n:'метан'}, C2H6:{f:'C₂H₆',n:'этан'}, C3H8:{f:'C₃H₈',n:'пропан'},
+  C4H10:{f:'C₄H₁₀',n:'бутан'}, C5H12:{f:'C₅H₁₂',n:'пентан'}, C6H14:{f:'C₆H₁₄',n:'гексан'},
+  C8H18:{f:'C₈H₁₈',n:'октан'}, C10H22:{f:'C₁₀H₂₂',n:'декан'},
+  C2H4:{f:'C₂H₄',n:'этилен'}, C3H6:{f:'C₃H₆',n:'пропен'}, C4H8:{f:'C₄H₈',n:'бутен'}, C5H10:{f:'C₅H₁₀',n:'пентен'},
+  C2H2:{f:'C₂H₂',n:'ацетилен'},
+  CH3Cl:{f:'CH₃Cl',n:'хлорметан'}, C2H5Cl:{f:'C₂H₅Cl',n:'хлорэтан'}, C3H7Cl:{f:'C₃H₇Cl',n:'1-хлорпропан'},
+  C4H9Cl:{f:'C₄H₉Cl',n:'1-хлорбутан'}, C5H11Cl:{f:'C₅H₁₁Cl',n:'1-хлорпентан'},
+  CH3Br:{f:'CH₃Br',n:'бромметан'}, C2H5Br:{f:'C₂H₅Br',n:'бромэтан'}, C3H7Br:{f:'C₃H₇Br',n:'1-бромпропан'}, C4H9Br:{f:'C₄H₉Br',n:'1-бромбутан'},
+  CH3NO2:{f:'CH₃NO₂',n:'нитрометан'}, C3H7NO2:{f:'C₃H₇NO₂',n:'1-нитропропан'}, C4H9NO2:{f:'C₄H₉NO₂',n:'1-нитробутан'},
+  CO2:{f:'CO₂',n:'углекислый газ'}, CaCO3:{f:'CaCO₃',n:'карбонат кальция'},
+  Al4C3:{f:'Al₄C₃',n:'карбид алюминия'}, CO:{f:'CO',n:'угарный газ'}
+};
+// [из чего, во что, реагент над стрелкой, подсказка-пояснение]
+const CH_EDGES = [
+  ['CH4','CO2','O₂ (горение)','горение: CₙH₂ₙ₊₂ + O₂ даёт CO₂ и H₂O'],
+  ['C2H6','CO2','O₂ (горение)','горение: CₙH₂ₙ₊₂ + O₂ даёт CO₂ и H₂O'],
+  ['C3H8','CO2','O₂ (горение)','горение: CₙH₂ₙ₊₂ + O₂ даёт CO₂ и H₂O'],
+  ['C4H10','CO2','O₂ (горение)','горение: CₙH₂ₙ₊₂ + O₂ даёт CO₂ и H₂O'],
+  ['C5H12','CO2','O₂ (горение)','горение: CₙH₂ₙ₊₂ + O₂ даёт CO₂ и H₂O'],
+  ['C6H14','CO2','O₂ (горение)','горение: CₙH₂ₙ₊₂ + O₂ даёт CO₂ и H₂O'],
+  ['C8H18','CO2','O₂ (горение)','горение: CₙH₂ₙ₊₂ + O₂ даёт CO₂ и H₂O'],
+  ['C10H22','CO2','O₂ (горение)','горение: CₙH₂ₙ₊₂ + O₂ даёт CO₂ и H₂O'],
+  ['CO2','CaCO3','Ca(OH)₂','качественная реакция: CO₂ мутит известковую воду, выпадает CaCO₃↓'],
+  ['CH4','CH3Cl','Cl₂ (свет)','замещение H на Cl на свету (радикальное)'],
+  ['C2H6','C2H5Cl','Cl₂ (свет)','замещение H на Cl на свету (радикальное)'],
+  ['C3H8','C3H7Cl','Cl₂ (свет)','замещение H на Cl на свету (радикальное)'],
+  ['C4H10','C4H9Cl','Cl₂ (свет)','замещение H на Cl на свету (радикальное)'],
+  ['C5H12','C5H11Cl','Cl₂ (свет)','замещение H на Cl на свету (радикальное)'],
+  ['CH4','CH3Br','Br₂ (свет)','замещение H на Br на свету — заготовка для реакции Вюрца'],
+  ['C2H6','C2H5Br','Br₂ (свет)','замещение H на Br на свету — заготовка для реакции Вюрца'],
+  ['C3H8','C3H7Br','Br₂ (свет)','замещение H на Br на свету — заготовка для реакции Вюрца'],
+  ['C4H10','C4H9Br','Br₂ (свет)','замещение H на Br на свету — заготовка для реакции Вюрца'],
+  ['CH3Br','C2H6','2Na (сухой эфир)','реакция Вюрца: две молекулы сращиваются, цепь удваивается'],
+  ['C2H5Br','C4H10','2Na (сухой эфир)','реакция Вюрца: две молекулы сращиваются, цепь удваивается'],
+  ['C3H7Br','C6H14','2Na (сухой эфир)','реакция Вюрца: две молекулы сращиваются, цепь удваивается'],
+  ['C4H9Br','C8H18','2Na (сухой эфир)','реакция Вюрца: две молекулы сращиваются, цепь удваивается'],
+  ['CH3Cl','C2H6','2Na (сухой эфир)','реакция Вюрца: две молекулы сращиваются, цепь удваивается'],
+  ['C2H5Cl','C4H10','2Na (сухой эфир)','реакция Вюрца: две молекулы сращиваются, цепь удваивается'],
+  ['C4H9Cl','C8H18','2Na (сухой эфир)','реакция Вюрца: так из 1-хлорбутана получается октан'],
+  ['C2H6','C2H4','t°, Cr₂O₃','дегидрирование: от алкана отщепляется H₂, рождается алкен'],
+  ['C3H8','C3H6','t°, Cr₂O₃','дегидрирование: от алкана отщепляется H₂, рождается алкен'],
+  ['C4H10','C4H8','t°, Cr₂O₃','дегидрирование: от алкана отщепляется H₂, рождается алкен'],
+  ['C5H12','C5H10','t°, Cr₂O₃','дегидрирование: от алкана отщепляется H₂, рождается алкен'],
+  ['C2H4','C2H6','H₂, Ni','гидрирование: алкен + водород → алкан'],
+  ['C3H6','C3H8','H₂, Ni','гидрирование: алкен + водород → алкан'],
+  ['C4H8','C4H10','H₂, Ni','гидрирование: алкен + водород → алкан'],
+  ['C5H10','C5H12','H₂, Ni','гидрирование: алкен + водород → алкан'],
+  ['C2H2','C2H4','H₂, Ni','гидрирование ацетилена до этилена'],
+  ['C10H22','C5H12','t° 500–700 °C','крекинг: длинная цепь рвётся пополам — алкан + алкен'],
+  ['C8H18','C4H10','t° 500–700 °C','крекинг: длинная цепь рвётся пополам — алкан + алкен'],
+  ['C6H14','C3H8','t° 500–700 °C','крекинг: длинная цепь рвётся пополам — алкан + алкен'],
+  ['CH4','CH3NO2','HNO₃ разб., 140 °C','реакция Коновалова: H замещается на −NO₂'],
+  ['C3H8','C3H7NO2','HNO₃ разб., 140 °C','реакция Коновалова: H замещается на −NO₂'],
+  ['C4H10','C4H9NO2','HNO₃ разб., 140 °C','реакция Коновалова: H замещается на −NO₂'],
+  ['Al4C3','CH4','H₂O','карбид алюминия + вода → метан'],
+  ['CO','CH4','3H₂, Ni','метан из синтез-газа: CO + 3H₂ → CH₄ + H₂O'],
+  ['CH4','C2H2','1500 °C','пиролиз метана при 1500 °C → ацетилен']
+];
+const CH_POOL = ['O₂ (горение)','Ca(OH)₂','Cl₂ (свет)','Br₂ (свет)','2Na (сухой эфир)','H₂, Ni','t°, Cr₂O₃','t° 500–700 °C','HNO₃ разб., 140 °C','H₂O','3H₂, Ni','1500 °C'];
+const CH_ADJ = {};
+CH_EDGES.forEach(e => { (CH_ADJ[e[0]] = CH_ADJ[e[0]] || []).push(e); });
+
+function chShuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+function chFind(a, b) { return CH_EDGES.find(e => e[0] === a && e[1] === b); }
+function chFromPath(path) {
+  const out = [];
+  for (let i = 0; i < path.length - 1; i++) {
+    const e = chFind(path[i], path[i + 1]);
+    if (!e) return null;
+    out.push(e);
+  }
+  return out;
+}
+// случайная цепочка: прогулка по графу реакций без повторов веществ, 3–5 шагов
+function chGen() {
+  for (let t = 0; t < 400; t++) {
+    const target = 3 + Math.floor(Math.random() * 3);
+    const starts = Object.keys(CH_SUBS).filter(id => CH_ADJ[id]);
+    let id = starts[Math.floor(Math.random() * starts.length)];
+    const visited = {}; visited[id] = true;
+    const steps = [];
+    for (let s = 0; s < target; s++) {
+      const opts = (CH_ADJ[id] || []).filter(e => !visited[e[1]]);
+      if (!opts.length) break;
+      const e = opts[Math.floor(Math.random() * opts.length)];
+      steps.push(e); visited[e[1]] = true; id = e[1];
+    }
+    if (steps.length >= 3) return steps;
+  }
+  return chFromPath(['CH4','CH3Cl','C2H6','CO2','CaCO3']);
+}
+// пресеты: твои цепочки из запроса (в химически верном виде)
+const CH_PRESETS = [
+  chFromPath(['CH4','CH3Cl','C2H6','CO2','CaCO3']),          // метан → хлорметан → этан → CO₂ → CaCO₃
+  chFromPath(['C4H10','C4H8','C4H10','C4H9Cl','C8H18']),     // бутан → бутен → бутан → хлорбутан → октан
+  chFromPath(['C2H6','C2H5Cl','C4H10','CO2','CaCO3'])        // этан → хлорэтан → бутан → CO₂ → CaCO₃
+].filter(Boolean);
+
+let chEdges = null, chIdx = 0, chOk = 0, chNo = 0, chMarks = [];
+const chStat = { ok: 0, all: 0, chains: 0 };
+
+function chPill(id) {
+  const s = CH_SUBS[id];
+  return '<div class="pill"><b>' + s.f + '</b><span>' + s.n + '</span></div>';
+}
+function chRenderBar() {
+  let h = chPill(chEdges[0][0]);
+  chEdges.forEach((e, i) => {
+    let cls = 'stepcell', txt = '?';
+    if (i < chIdx) { cls += ' done' + (chMarks[i] === 'ok' ? '' : ' bad'); txt = e[2]; }
+    else if (i === chIdx) cls += ' active';
+    h += '<div class="' + cls + '"><span class="rslot">' + txt + '</span><span class="arrow">→</span></div>' + chPill(e[1]);
+  });
+  document.getElementById('chainBar').innerHTML = h;
+}
+function chWrong(correct) {
+  return chShuffle(CH_POOL.filter(r => r !== correct)).slice(0, 3);
+}
+function chRenderStep() {
+  const q = document.getElementById('chainQ');
+  if (chIdx >= chEdges.length) {
+    chStat.chains++;
+    const perfect = chOk === chEdges.length;
+    q.innerHTML = '<div class="chainfb' + (perfect ? ' ok' : '') + '" style="font-weight:600">' +
+      (perfect ? '🎉' : '🙂') + ' Цепочка №' + chNo + ' собрана! Верно: ' + chOk + ' из ' + chEdges.length + '.</div>' +
+      '<p style="font-size:14px;color:var(--muted);margin:8px 0 0">Нажми «Ещё цепочка» — соберётся новая, из других реакций.</p>';
+    chScore();
+    return;
+  }
+  const e = chEdges[chIdx];
+  const from = CH_SUBS[e[0]], to = CH_SUBS[e[1]];
+  const opts = chShuffle([e[2]].concat(chWrong(e[2])));
+  q.innerHTML = '<p class="qq">Шаг ' + (chIdx + 1) + ' из ' + chEdges.length + ': что над стрелкой «' + from.f + ' → ' + to.f + '»?</p>' +
+    '<div class="ansgrid">' + opts.map((o, i) => '<button class="ansbtn" data-o="' + i + '">' + o + '</button>').join('') + '</div>' +
+    '<div id="chFb"></div>';
+  q.querySelectorAll('.ansbtn').forEach(b => b.addEventListener('click', () => chAnswer(b, opts[+b.dataset.o], e)));
+}
+function chAnswer(btn, chosen, e) {
+  const right = chosen === e[2];
+  chMarks.push(right ? 'ok' : 'no');
+  if (right) chOk++;
+  chStat.all++;
+  if (right) chStat.ok++;
+  document.querySelectorAll('.ansbtn').forEach(b => {
+    b.disabled = true;
+    if (b.textContent === e[2]) b.classList.add('ok');
+    else if (b === btn) b.classList.add('no');
+  });
+  const cells = document.querySelectorAll('#chainBar .stepcell');
+  const cell = cells[chIdx];
+  if (cell) {
+    cell.classList.remove('active');
+    cell.classList.add('done');
+    if (!right) cell.classList.add('bad');
+    cell.querySelector('.rslot').textContent = e[2];
+  }
+  document.getElementById('chFb').innerHTML =
+    '<div class="chainfb ' + (right ? 'ok' : 'no') + '">' +
+    (right ? '✓ Верно! ' : '✗ Не совсем. Правильно: <b>' + e[2] + '</b>. ') + e[3] + '.</div>';
+  setTimeout(() => { chIdx++; chRenderBar(); chRenderStep(); }, right ? 700 : 1600);
+}
+function chScore() {
+  document.getElementById('chainScore').textContent =
+    'Цепочек собрано: ' + chStat.chains + ' · верных стрелок: ' + chStat.ok + ' из ' + chStat.all;
+}
+function chNew() {
+  chNo++;
+  chEdges = chNo <= CH_PRESETS.length ? CH_PRESETS[chNo - 1] : chGen();
+  chIdx = 0; chOk = 0; chMarks = [];
+  chRenderBar();
+  chRenderStep();
+  chScore();
+}
+document.getElementById('chainNew').addEventListener('click', chNew);
+chNew();
 </script>
 </body>
 </html>
